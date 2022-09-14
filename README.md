@@ -5,7 +5,7 @@ https://www.docker.com/products/docker-desktop
 
 Clone project from github.
 
-git clone https://github.com/jasontaylor0891/CSC535_project.git
+git clone -b <branch_name> https://github.com/jasontaylor0891/CSC535_project.git
 
 Change to the project directoty and run. (this is the folder where docker-compose.yml is located)
 
