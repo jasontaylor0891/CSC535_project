@@ -34,33 +34,26 @@ def is_logged_in(f):
 		if 'logged_in' in session:
 			return f(*args, **kwargs)
 		else:
-			flash('Nice try, Tricks don\'t work, bud!! Please Login :)', 'danger')
+			flash('You are not logged in.  Please Login :)', 'danger')
 			return redirect(url_for('login'))
 	return wrap
 
-#function to determin if the logged in user is a employee.
-def is_employee(f):
+#function to determin if the logged in user using the free tier.
+def is_free_tier(f):
 	@wraps(f)
 	def wrap(*args, **kwargs):
 		if session['profile'] == 3:
 			return f(*args, **kwargs)
-		elif session['profile'] == 1:
-			return f(*args, **kwargs)
-		elif session['profile'] <= 2:
-			return f(*args, **kwargs)
-		else:
-			flash('You are not a employee!!, You do not have access to this page.', 'danger')
-			return redirect(url_for('login'))
 	return wrap
 
-#function to determin if the logged in user is a trainer.
-def is_trainer(f):
+#function to determin if the logged in user using the paid tier.
+def is_paid_tie(f):
 	@wraps(f)
 	def wrap(*args, **kwargs):
-		if session['profile'] == 3:
+		if session['profile'] == 2:
 			return f(*args, **kwargs)
 		else:
-			flash('You are not a trainer!!, No access to this page.', 'danger')
+			flash('You do not have access to the paid tier, You do not have access to this page.', 'danger')
 			return redirect(url_for('login'))
 	return wrap
 
@@ -74,19 +67,6 @@ def is_admin(f):
 			flash('You are not an admin!!, No access to this page.', 'danger')
 			return redirect(url_for('login'))
 	return wrap
-
-#function to determin if the logged in user is a receptionist.
-def is_recep_level(f):
-	@wraps(f)
-	def wrap(*args, **kwargs):
-		if session['profile'] <= 2:
-			return f(*args, **kwargs)
-		else:
-			flash('You are not an authorised to view that page!!', 'danger')
-			return redirect(url_for('login'))
-	return wrap
-
-
 
 #default route to the applications homepage
 @app.route('/')
