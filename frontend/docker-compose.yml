@@ -1,0 +1,17 @@
+version: "2"
+
+networks:
+  micro_network:
+    external:
+      name: micro_network
+
+
+services:
+  app:
+    container_name: frontend-app
+    build: ./app
+    ports:
+      - "8000:5000"
+    networks:
+      - micro_network
+    restart: always
