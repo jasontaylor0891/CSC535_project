@@ -5,15 +5,11 @@ from flask_wtf import FlaskForm
 from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-#from flask_wtf import Form
-#from wtforms import Form, StringField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField
-#from wtforms.validators import Required
-#from wtforms.fields.html5 import DateField
-#from flask_script import Manager
+from forms import ChangePasswordForm
 
 from functools import wraps
 from datetime import datetime
-#from forms import AddMemberForm
+
 
 app = Flask(__name__, template_folder='templates')
 app.secret_key = "welcome123"
@@ -113,14 +109,6 @@ def login():
 def main_app():
     return render_template("main.html");
 
-#Form for changing user password
-class ChangePasswordForm(Form):
-	old_password = PasswordField('Existing Password')
-	new_password = PasswordField('Password', [
-		validators.DataRequired(),
-		validators.EqualTo('confirm', message = 'Passwords do not match!')
-	])
-	confirm = PasswordField('Confirm Password')
 
 #Route and function for changing user password
 @app.route('/update_password/<string:username>', methods = ['GET', 'POST'])
