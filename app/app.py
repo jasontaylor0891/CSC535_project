@@ -2,10 +2,10 @@ from flask import Flask, render_template, flash, redirect, url_for, request, ses
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from flask_wtf import FlaskForm
-from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+#from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, TextField
+#from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from forms import ChangePasswordForm
+from forms import ChangePasswordForm, RegistrationForm, LoginForm
 
 from functools import wraps
 from datetime import datetime
@@ -73,41 +73,41 @@ def index():
 #and redirect the user to their appropriate dashboard.
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password_candidate = request.form['password']
-        cur = mysql.connection.cursor()
-        result = cur.execute('SELECT * FROM logins WHERE username = %s', [username])
-        if result>0:
-            data = cur.fetchone()
-            cur.close()
-            password = data['password']
+	
+	form = LoginForm(request.form)
+	
+	if request.method == 'POST' and form.validate():
+		username = request.form['username']
+		password_candidate = request.form['password']
+		cur = mysql.connection.cursor()
+		result = cur.execute('SELECT * FROM logins WHERE username = %s', [username])
+		if result>0:
+			data = cur.fetchone()
+			cur.close()
+			password = data['password']
 
-            if sha256_crypt.verify(password_candidate, password):
-                session['logged_in'] = True
-                session['username'] = username
-                session['profile'] = data['profile']
-                flash('You are logged in', 'success')
+			if sha256_crypt.verify(password_candidate, password):
+				session['logged_in'] = True
+				session['username'] = username
+				session['profile'] = data['profile']
+				flash('You are logged in', 'success')
                 
 				#return redirect(url_for('main', username = username))
-                return redirect(url_for('main_app', username = username))
-				
-            else:
-                error = 'Invalid login'
-                return render_template('login.html', error = error)
-
-		
-        else:
-            error = 'Username NOT FOUND'
-            return render_template('login.html', error = error)
-
-    return render_template('login.html')
+				return redirect(url_for('main_app', username = username))
+			else:
+				error = 'Invalid login'
+				return render_template('login.html', error = error)
+		else:
+			error = 'Username NOT FOUND'
+			return render_template('login.html', error = error)
+	
+	return render_template('login.html', form = form)
 
 #Route and Function for adminDashboard
 @app.route('/main_app')
 @is_logged_in
 def main_app():
-    return render_template("main.html");
+    return render_template("main.html")
 
 
 #Route and function for changing user password
@@ -144,6 +144,19 @@ def logout():
 	session.clear()
 	flash('You are now logged out', 'success')
 	return redirect(url_for('login'))
+
+#Route and function for the registration page
+@app.route('/registration/', methods=["GET","POST"])
+def registration_page():
+	try:
+		form = RegistrationForm(request.form)
+		#form.membershipType.clear()
+		#form.membershipType.append("Free")
+		#form.membershipType.append("Paid")
+
+		return render_template("registration.html", form=form)
+	except Exception as e:
+		return(str(e))
 
 
 app.run(host="0.0.0.0", port=int("8000"), debug=True)
