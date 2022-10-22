@@ -1,3 +1,6 @@
+import os
+import sys
+
 from flask import Flask, render_template, flash, redirect, url_for, request, session, logging
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
@@ -12,14 +15,16 @@ from datetime import datetime
 
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = "welcome123"
 
-#Change mysql host if not using docker. Docker default is gym_managment_db_1
-app.config['MYSQL_HOST'] = 'CSC535_project_db_1'
-app.config['MYSQL_USER'] = 'csc535'
-app.config['MYSQL_PASSWORD'] = 'welcome123'
-app.config['MYSQL_DB'] = 'csc535'
-app.config['MYSQL_CURSORCLASS'] = "DictCursor"
+if app.config['ENV'] == "production":
+	print(f'Type: Production', file=sys.stderr)
+	app.config.from_object("config.ProductionConfig")
+elif app.config['ENV'] == "development":
+	print(f'Type: Development', file=sys.stderr)
+	app.config.from_object("config.DevelopmentConfig")
+else:
+	print(f'Type: Testing', file=sys.stderr)
+	app.config.from_object("config.TestingConfig")
 
 mysql = MySQL(app)
 
@@ -67,7 +72,10 @@ def is_admin(f):
 #default route to the applications homepage
 @app.route('/')
 def index():
-    return render_template("home.html"); 
+
+	#print(app.config)
+	print(f'{app.config}', file=sys.stderr)
+	return render_template("home.html"); 
 
 #Login route.  This function logs the user into the application and determins their account profile
 #and redirect the user to their appropriate dashboard.
@@ -150,13 +158,10 @@ def logout():
 def registration_page():
 	try:
 		form = RegistrationForm(request.form)
-		#form.membershipType.clear()
-		#form.membershipType.append("Free")
-		#form.membershipType.append("Paid")
 
 		return render_template("registration.html", form=form)
 	except Exception as e:
 		return(str(e))
 
 
-app.run(host="0.0.0.0", port=int("8000"), debug=True)
+#app.run(host="0.0.0.0", port=int("8000"))
