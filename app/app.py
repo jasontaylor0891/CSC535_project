@@ -8,7 +8,7 @@ from flask_wtf import FlaskForm
 #from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, TextField
 #from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from forms import ChangePasswordForm, RegistrationForm, LoginForm
+from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateReminder
 
 from functools import wraps
 from datetime import datetime
@@ -160,6 +160,16 @@ def registration_page():
 		form = RegistrationForm(request.form)
 
 		return render_template("registration.html", form=form)
+	except Exception as e:
+		return(str(e))
+
+#Route and function for the create reminder page
+@app.route('/create_reminder/', methods=["GET","POST"])
+def create_reminder():
+	try:
+		form = CreateReminder(request.form)
+
+		return render_template("create_reminder.html", form=form)
 	except Exception as e:
 		return(str(e))
 

@@ -1,7 +1,8 @@
 from flask import Flask, render_template, flash, redirect, url_for, request, session, logging
 from flask_wtf import FlaskForm
-from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
+from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, TimeField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
+
 
 
 
@@ -38,3 +39,12 @@ class RegistrationForm(Form):
 class LoginForm(Form):
 	username = StringField('Username:', [validators.DataRequired()])
 	password = PasswordField('Password:', [validators.DataRequired()])
+
+class CreateReminder(Form):
+	ReminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
+	ReminderStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
+	ReminderStartTime = TimeField('Start Time:', [validators.Length(min=1, max=50)])
+	ReminderEndDate = DateField('End Date (DD-MM-YYYY):', [validators.Length(min=1, max=50)])
+	ReminderEndTime = TimeField('End Time:', [validators.Length(min=1, max=50)])
+	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
+	ReminderTags = StringField('Tags:', [validators.Length(min=1, max=5000)])
