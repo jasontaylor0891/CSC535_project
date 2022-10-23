@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="jumbotron" style="background-color:#F0F8FF;">
+	<h1 style="font-variant: small-caps;">Create a Reminder</h1>
+    {% from "includes/_formhelpers.html" import render_field %}
+	<form action="" method="POST">
+		<div class="form-group">
+            {{render_field(form.ReminderName, class_="form-control")}}
+          </div>
+          <div class="form-group">
+            {{render_field(form.ReminderStartDate, class_="form-control")}}
+          </div>
+          <div class="form-group">
+            {{render_field(form.ReminderStartTime, class_="form-control")}}
+          </div>
+          <div class="form-group">
+            {{render_field(form.ReminderEndDate, class_="form-control")}}
+          </div>
+          <div class="form-group">
+            {{render_field(form.ReminderEndTime, class_="form-control")}}
+          </div>
+          <div class="form-group">
+            {{render_field(form.ReminderMessage, class_="form-control")}}
+          </div>
+          <div class="form-group">
+            {{render_field(form.ReminderTags, class_="form-control")}}
+          </div>
+		<button type="submit" class="btn btn-primary">Create Reminder</button>
+	</form> 
+	</div>
+{% endblock %}
+
