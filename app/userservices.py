@@ -1,0 +1,61 @@
+#User-service
+import sys
+import json
+
+from flask_mysqldb import MySQL
+from flask import Flask, make_response, request, jsonify
+from passlib.hash import sha256_crypt
+
+mysql = MySQL()
+
+class UserService:
+    def __init__(self):
+        print('init called', file=sys.stderr)
+
+    def login(username, password_candidate):
+        print(f'User {username} login attempt started', file=sys.stderr)
+
+        cur = mysql.connection.cursor()
+        result = cur.execute('SELECT * FROM users WHERE username = %s', [username])
+
+        if result == 0:
+            cur.close()
+            print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
+            return json.dumps({'Auth': 'False','errorcode': '002'})
+
+        if result>0:
+            data = cur.fetchone()
+            cur.close()
+            password = data['password']
+
+            if sha256_crypt.verify(password_candidate, data['password']):
+                return json.dumps({'Auth': 'True', 'profile':  data['profile'], 'username': data['username']})
+            else:
+                print(f'User {username} login failed. 401 Not Authorized', file=sys.stderr)
+                return json.dumps({'Auth': 'False','errorcode': '001'})
+
+    def registration():
+        pass
+
+    def updatepassword(username, oldpassword, newpassword):
+        
+        print(f'User {username} has started password change', file=sys.stderr)
+        
+        #getting current password from the database
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT password FROM users WHERE username = %s", [username])
+        old = (cur.fetchone())['password']
+
+        #IF the old password entered matches the db then update db with the new password
+        if sha256_crypt.verify(oldpassword, old):
+            cur.execute("UPDATE users SET password = %s WHERE username = %s", (sha256_crypt.encrypt(newpassword), username))
+            mysql.connection.commit()
+            cur.close()
+            return json.dumps({'Updated': 'True'})
+        else:
+            cur.close()
+            return json.dumps({'Updated': 'False', 'errorcode': '003'})
+
+
+
+

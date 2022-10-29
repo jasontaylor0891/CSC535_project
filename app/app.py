@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 
 from flask import Flask, render_template, flash, redirect, url_for, request, session, logging
 from flask_mysqldb import MySQL
@@ -9,7 +10,7 @@ from flask_wtf import FlaskForm
 #from wtforms.validators import DataRequired, Length, Email, EqualTo
 
 from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateReminder
-
+from userservices import UserService
 from functools import wraps
 from datetime import datetime
 
@@ -72,9 +73,9 @@ def is_admin(f):
 #default route to the applications homepage
 @app.route('/')
 def index():
-
+	#UserService.login()
 	#print(app.config)
-	print(f'{app.config}', file=sys.stderr)
+	#print(f'{app.config}', file=sys.stderr)
 	return render_template("home.html"); 
 
 #Login route.  This function logs the user into the application and determins their account profile
@@ -87,28 +88,24 @@ def login():
 	if request.method == 'POST' and form.validate():
 		username = request.form['username']
 		password_candidate = request.form['password']
-		cur = mysql.connection.cursor()
-		result = cur.execute('SELECT * FROM logins WHERE username = %s', [username])
-		if result>0:
-			data = cur.fetchone()
-			cur.close()
-			password = data['password']
 
-			if sha256_crypt.verify(password_candidate, password):
+		responce = UserService.login(username, password_candidate)
+		if responce:
+			content = json.loads(responce)
+
+			if content['Auth'] == 'True':
 				session['logged_in'] = True
-				session['username'] = username
-				session['profile'] = data['profile']
-				flash('You are logged in', 'success')
-                
-				#return redirect(url_for('main', username = username))
-				return redirect(url_for('main_app', username = username))
+				session['username'] = content['username']
+				session['profile'] = content['profile']
+				return redirect(url_for('main_app', username = content['username']))
 			else:
-				error = 'Invalid login'
-				return render_template('login.html', error = error)
-		else:
-			error = 'Username NOT FOUND'
-			return render_template('login.html', error = error)
-	
+				errorcode = content['errorcode']
+				if errorcode == '001':
+					error = 'The username and password you entered did not match our records.  Please double check and try again.'
+				if errorcode == '002': 
+					error = 'Your username was not found in our records. Please double check and try again.'
+				return render_template('login.html', form = form, error = error)
+
 	return render_template('login.html', form = form)
 
 #Route and Function for adminDashboard
@@ -127,21 +124,19 @@ def update_password(username):
 		new = form.new_password.data
 		entered = form.old_password.data
 
-		#getting current password from the database
-		cur = mysql.connection.cursor()
-		cur.execute("SELECT password FROM logins WHERE username = %s", [username])
-		old = (cur.fetchone())['password']
-
-		#IF the old password entered matches the db then update db with the new password
-		if sha256_crypt.verify(entered, old):
-			cur.execute("UPDATE logins SET password = %s WHERE username = %s", (sha256_crypt.encrypt(new), username))
-			mysql.connection.commit()
-			cur.close()
-			flash('New password will be in effect from next login!!', 'info')
-			return redirect(url_for('memberDashboard', username = session['username']))
-		
-		cur.close()
-		flash('Old password you entered is not correct!!, try again', 'warning')
+		responce = UserService.updatepassword(username, entered, new)
+		print(f'Updated: {responce}', file=sys.stderr)
+		if responce:
+			content = json.loads(responce)
+			
+			if content['Updated'] == 'True':
+				flash('Your new password will be in effect from next login!!', 'info')
+				return redirect(url_for('main_app', username = session['username']))
+			else:
+				errorcode = content['errorcode']
+				if errorcode == '003':
+					error = 'Your current password you entered did not match our records. Please double check and try again.'
+					return render_template('updatePassword.html', form = form, error = error)
 
 	return render_template('updatePassword.html', form = form)
 
@@ -173,5 +168,3 @@ def create_reminder():
 	except Exception as e:
 		return(str(e))
 
-
-#app.run(host="0.0.0.0", port=int("8000"))
