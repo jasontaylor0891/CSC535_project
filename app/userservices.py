@@ -1,6 +1,7 @@
 #User-service
 import sys
 import json
+import datetime
 
 from flask_mysqldb import MySQL
 from flask import Flask, make_response, request, jsonify
@@ -34,8 +35,26 @@ class UserService:
                 print(f'User {username} login failed. 401 Not Authorized', file=sys.stderr)
                 return json.dumps({'Auth': 'False','errorcode': '001'})
 
-    def registration():
-        pass
+    def registration(fname, lname, username, email, password, address, city, zipcode, mtype, phone):
+        print(f'Registration process has started', file=sys.stderr)
+
+        if mtype == "Free":
+            profile = 3
+        else:
+            profile = 2
+        
+        accountcreated = str(datetime.date.today())
+
+        hash = sha256_crypt.hash(password)
+
+        cur = mysql.connection.cursor()
+        sql = "INSERT INTO users(fname, lname, username, email, password, address, city, zipCode, phone, profile, accountEnabled, accountCreated, totpEnabled) VALUES( '" +fname+ "', '" +lname+ "', '" +username+ "', '" +email+"', '"+hash+"', '"+address+"', '"+city+"', " +zipcode+", '"+phone+"', "+str(profile)+", True, '"+accountcreated+"', False)"
+        print(f'SQL Output {sql}', file=sys.stderr)
+
+        cur.execute(sql)
+        mysql.connection.commit()
+
+        return json.dumps({'Auth': 'True'})
 
     def updatepassword(username, oldpassword, newpassword):
         
