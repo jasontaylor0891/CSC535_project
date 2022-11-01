@@ -150,13 +150,30 @@ def logout():
 
 #Route and function for the registration page
 @app.route('/registration/', methods=["GET","POST"])
-def registration_page():
-	try:
-		form = RegistrationForm(request.form)
+def registration():
+	
+	session['logged_in'] = False
 
-		return render_template("registration.html", form=form)
-	except Exception as e:
-		return(str(e))
+	form = RegistrationForm(request.form)
+	if request.method == 'POST':
+		fname = form.fname.data
+		lname = form.lname.data
+		username = form.username.data
+		email = form.email.data
+		password = form.password.data
+		address = form.address.data
+		city = form.city.data
+		zipcode = form.zipCode.data
+		mtype = form.mtype.data
+		phone = form.phone.data
+			
+		responce = UserService.registration(fname, lname, username, email, password, address, city, zipcode , mtype, phone)
+		print(f'Call Responce: {responce}', file=sys.stderr)
+		if responce:
+			return redirect(url_for('login'))
+
+	return render_template("registration.html", form=form)
+	
 
 #Route and function for the create reminder page
 @app.route('/create_reminder/', methods=["GET","POST"])

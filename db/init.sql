@@ -17,7 +17,7 @@ CREATE TABLE users(
     zipCode VARCHAR(5),
     phone VARCHAR(10),
     profile INT,
-    fLoginAttempts INT,
+    accountEnabled BOOL,
     lastLogin DATETIME,
     accountCreated DATE, 
     totpEnabled BOOL,
