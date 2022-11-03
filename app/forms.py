@@ -30,9 +30,6 @@ class RegistrationForm(Form):
         validators.EqualTo('confirm:', message='Passwords must match')
     ])
 	confirm = PasswordField('Confirm Password:')
-	address = StringField('Address:', [validators.Length(max=50)])
-	city = StringField('City:', [validators.Length(max=25)])
-	zipCode = StringField('Zipcode:', [validators.Length(min=5, max=5)])
 	mtype = SelectField('Membership Type:', choices = membershipType)
 	phone = StringField('Phone Number:', [validators.Length(min=10, max=10)])
 	

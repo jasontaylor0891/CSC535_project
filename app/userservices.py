@@ -35,7 +35,7 @@ class UserService:
                 print(f'User {username} login failed. 401 Not Authorized', file=sys.stderr)
                 return json.dumps({'Auth': 'False','errorcode': '001'})
 
-    def registration(fname, lname, username, email, password, address, city, zipcode, mtype, phone):
+    def registration(fname, lname, username, email, password, mtype, phone):
         print(f'Registration process has started', file=sys.stderr)
 
         if mtype == "Free":
@@ -45,16 +45,36 @@ class UserService:
         
         accountcreated = str(datetime.date.today())
 
-        hash = sha256_crypt.hash(password)
+        try:
+            
+            #Insert user info into users table
+            hash = sha256_crypt.hash(password)
+            cur = mysql.connection.cursor()
+            sql = ("INSERT INTO users(fname, lname, username, email, "
+                "password, phone, profile, accountEnabled, accountCreated, totpEnabled)"
+                "VALUES( '" +fname+ "', '" +lname+ "', '" +username+ "', "
+                "'" +email+"', '"+hash+"', '"+phone+"', "+str(profile)+", True, '"+accountcreated+"', False)"
+                )
 
-        cur = mysql.connection.cursor()
-        sql = "INSERT INTO users(fname, lname, username, email, password, address, city, zipCode, phone, profile, accountEnabled, accountCreated, totpEnabled) VALUES( '" +fname+ "', '" +lname+ "', '" +username+ "', '" +email+"', '"+hash+"', '"+address+"', '"+city+"', " +zipcode+", '"+phone+"', "+str(profile)+", True, '"+accountcreated+"', False)"
-        print(f'SQL Output {sql}', file=sys.stderr)
+            print(f'SQL Output {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
 
-        cur.execute(sql)
-        mysql.connection.commit()
+            #Create default list
+            sql = ("INSERT INTO list (listname, listdesc, username) "
+            "VALUES('Default', 'Default List', '" +username+ "')")
+            
+            print(f'SQL Output {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
 
-        return json.dumps({'Auth': 'True'})
+            return json.dumps({'Success': 'True'})
+
+        except Exception as e:
+            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            return json.dumps({'Success': 'False','errorcode': '004'})
+
+        
 
     def updatepassword(username, oldpassword, newpassword):
         
