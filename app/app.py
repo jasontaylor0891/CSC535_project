@@ -152,28 +152,36 @@ def logout():
 @app.route('/registration/', methods=["GET","POST"])
 def registration():
 	
-	session['logged_in'] = False
+	try:
+		session['logged_in'] = False
 
-	form = RegistrationForm(request.form)
-	if request.method == 'POST':
-		fname = form.fname.data
-		lname = form.lname.data
-		username = form.username.data
-		email = form.email.data
-		password = form.password.data
-		address = form.address.data
-		city = form.city.data
-		zipcode = form.zipCode.data
-		mtype = form.mtype.data
-		phone = form.phone.data
-			
-		responce = UserService.registration(fname, lname, username, email, password, address, city, zipcode , mtype, phone)
-		print(f'Call Responce: {responce}', file=sys.stderr)
-		if responce:
-			return redirect(url_for('login'))
+		form = RegistrationForm(request.form)
+		if request.method == 'POST':
+			fname = form.fname.data
+			lname = form.lname.data
+			username = form.username.data
+			email = form.email.data
+			password = form.password.data
+			mtype = form.mtype.data
+			phone = form.phone.data
+				
+			responce = UserService.registration(fname, lname, username, email, password, mtype, phone)
+			print(f'Call Responce: {responce}', file=sys.stderr)
+			if responce:
+				content = json.loads(responce)
+				if content['Success'] == 'True':
+					flash(f'The user {username} was sucessfuly created.')
+					return redirect(url_for('login'))
+				else:
+					errorcode = content['errorcode']
+					if errorcode == '004':
+						error = 'There was an issue during the registration process. Please contact the administrator if the problem continues.'
+						return render_template("registration.html", form=form, error=error)
 
-	return render_template("registration.html", form=form)
+		return render_template("registration.html", form=form)
 	
+	except Exception as e:
+		return(str(e))
 
 #Route and function for the create reminder page
 @app.route('/create_reminder/', methods=["GET","POST"])

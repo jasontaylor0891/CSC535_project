@@ -12,9 +12,6 @@ CREATE TABLE users(
     username VARCHAR(20),
     email VARCHAR(50),
     password VARCHAR(500),
-    address VARCHAR(50),
-    city VARCHAR(25),
-    zipCode VARCHAR(5),
     phone VARCHAR(10),
     profile INT,
     accountEnabled BOOL,
@@ -22,6 +19,27 @@ CREATE TABLE users(
     accountCreated DATE, 
     totpEnabled BOOL,
     PRIMARY KEY(username));
+
+CREATE TABLE list (
+	listid INT PRIMARY KEY AUTO_INCREMENT,
+	listname VARCHAR(20),
+    listdesc VARCHAR(100),
+    username VARCHAR(20),
+    FOREIGN KEY(Username) REFERENCES users(username)
+);
+
+CREATE TABLE reminders(
+    reminderid INT PRIMARY KEY AUTO_INCREMENT,
+    remindername VARCHAR(50),
+    reminderdesc VARCHAR(100),
+    priority INT,
+    reminderstartdate DATE, 
+    flaged BOOL,
+	username VARCHAR(20),
+	listid INT,
+	FOREIGN KEY(Username) REFERENCES users(username),
+	FOREIGN KEY(listid) REFERENCES list(listid)
+);
 
 INSERT INTO users(username, password, profile) 
 VALUES
