@@ -45,3 +45,7 @@ class CreateReminder(Form):
 	ReminderEndTime = TimeField('End Time:', [validators.Length(min=1, max=50)])
 	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
 	ReminderTags = StringField('Tags:', [validators.Length(min=1, max=5000)])
+
+class CreateList(Form):
+	listname = StringField('List Name:', [validators.Length(max=50)])
+	listdesc = StringField('List Description:', [validators.Length(max=250)])

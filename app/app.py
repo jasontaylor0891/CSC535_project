@@ -9,8 +9,9 @@ from flask_wtf import FlaskForm
 #from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, TextField
 #from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateReminder
+from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateReminder, CreateList
 from userservices import UserService
+from reminderservice import ReminderService
 from functools import wraps
 from datetime import datetime
 
@@ -75,7 +76,7 @@ def is_admin(f):
 def index():
 	#UserService.login()
 	#print(app.config)
-	#print(f'{app.config}', file=sys.stderr)
+	print(f'{app.config}', file=sys.stderr)
 	return render_template("home.html"); 
 
 #Login route.  This function logs the user into the application and determins their account profile
@@ -117,6 +118,7 @@ def main_app():
 
 #Route and function for changing user password
 @app.route('/update_password/<string:username>', methods = ['GET', 'POST'])
+@is_logged_in
 def update_password(username):
 	
 	form = ChangePasswordForm(request.form)
@@ -185,11 +187,40 @@ def registration():
 
 #Route and function for the create reminder page
 @app.route('/create_reminder/', methods=["GET","POST"])
+@is_logged_in
 def create_reminder():
 	try:
 		form = CreateReminder(request.form)
 
 		return render_template("create_reminder.html", form=form)
+	except Exception as e:
+		return(str(e))
+
+#Route and function for the create reminder page
+@app.route('/createlist/', methods=["GET","POST"])
+@is_logged_in
+def createlist():
+	try:
+		form = CreateList(request.form)
+		if request.method == 'POST':
+			listname = form.listname.data
+			listdesc = form.listdesc.data
+			username = session['username']
+			responce = ReminderService.createlist(listname, listdesc, username)
+			print(f'Call Responce: {responce}', file=sys.stderr)
+			if responce:
+				content = json.loads(responce)
+				if content['Success'] == 'True':
+					flash(f'The list {listname} was sucessfuly created.')
+					return redirect(url_for('main_app', username = session['username']))
+				else:
+					errorcode = content['errorcode']
+					if errorcode == '005':
+						error = 'There was an issue when creating your list. Please contact the administrator if the problem continues.'
+						return render_template("createlist.html", form=form, error=error)
+
+
+		return render_template("createlist.html", form=form)
 	except Exception as e:
 		return(str(e))
 
