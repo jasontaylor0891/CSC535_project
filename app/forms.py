@@ -37,15 +37,24 @@ class LoginForm(Form):
 	username = StringField('Username:', [validators.DataRequired()])
 	password = PasswordField('Password:', [validators.DataRequired()])
 
-class CreateReminder(Form):
-	ReminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
-	ReminderStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
-	ReminderStartTime = TimeField('Start Time:', [validators.Length(min=1, max=50)])
-	ReminderEndDate = DateField('End Date (DD-MM-YYYY):', [validators.Length(min=1, max=50)])
-	ReminderEndTime = TimeField('End Time:', [validators.Length(min=1, max=50)])
-	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
-	ReminderTags = StringField('Tags:', [validators.Length(min=1, max=5000)])
+# class CreateReminder(Form):
+# 	priority = []
+# 	priority.clear()
+# 	priority.append("None")
+# 	priority.append("High")
+# 	priority.append("Medium")
+# 	priority.append("Low")
+
+
+# 	ReminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
+# 	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
+# 	ReminderStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
+# 	priority = SelectField('Priority:', choices = priority)
+# 	list = SelectField('List:', choices = list)
+	
 
 class CreateList(Form):
+
 	listname = StringField('List Name:', [validators.Length(max=50)])
 	listdesc = StringField('List Description:', [validators.Length(max=250)])
+	
