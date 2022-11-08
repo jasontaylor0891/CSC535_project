@@ -37,6 +37,9 @@ class LoginForm(Form):
 	username = StringField('Username:', [validators.DataRequired()])
 	password = PasswordField('Password:', [validators.DataRequired()])
 
+class CreateProfile(Form):
+	pass
+
 # class CreateReminder(Form):
 # 	priority = []
 # 	priority.clear()

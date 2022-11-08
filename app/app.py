@@ -9,7 +9,7 @@ from flask_wtf import FlaskForm
 from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList
+from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, CreateProfile
 from userservices import UserService
 from reminderservice import ReminderService
 from functools import wraps
@@ -133,7 +133,7 @@ def update_password(username):
 			
 			if content['Updated'] == 'True':
 				flash('Your new password will be in effect from next login!!', 'info')
-				return redirect(url_for('main_app', username = session['username']))
+				return redirect(url_for('profile', username = session['username']))
 			else:
 				errorcode = content['errorcode']
 				if errorcode == '003':
@@ -276,4 +276,19 @@ def createlist():
 		return render_template("createlist.html", form=form)
 	except Exception as e:
 		return(str(e))
+
+#Route and function for the create reminder page
+@app.route('/profile/', methods=["GET","POST"])
+@is_logged_in
+def profile():
+	try:
+		form = CreateProfile(request.form)
+		#if request.method == 'POST':
+			
+
+
+		return render_template("profile.html", form=form)
+	except Exception as e:
+		return(str(e))
+
 
