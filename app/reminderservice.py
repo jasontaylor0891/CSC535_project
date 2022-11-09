@@ -3,7 +3,7 @@ import json
 import datetime
 
 from flask_mysqldb import MySQL
-from flask import current_app
+from flask import current_app, session
 
 mysql = MySQL()
 
@@ -33,3 +33,22 @@ class ReminderService:
         except Exception as e:
             print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '005'})
+
+    
+    def displayReminders():
+        username = session['username']
+        print(f'Displaying reminders for user {username}', file=sys.stderr)
+
+        cur = mysql.connection.cursor()
+        result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
+       
+        if result == 0:
+            cur.close()
+            print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
+            return json.dumps({'Auth': 'False','errorcode': '002'})
+
+        if result>0:
+            data = cur.fetchall()
+            cur.close()
+        
+        return json.dumps({'Auth': 'True', 'data':  data}, default=str)

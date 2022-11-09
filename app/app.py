@@ -110,10 +110,25 @@ def login():
 	return render_template('login.html', form = form)
 
 #Route and Function for adminDashboard
-@app.route('/main_app')
+@app.route('/main_app', methods = ['GET', 'POST'])
 @is_logged_in
 def main_app():
-    return render_template("main.html")
+
+	responce = ReminderService.displayReminders()
+
+	if responce:
+		content = json.loads(responce)
+
+		if content['Auth'] == 'True':
+			return render_template("main.html", data=content['data'], success="true")  
+					
+		else:
+			errorcode = content['errorcode']
+			if errorcode == '002': 
+				error = 'No reminders to display. Please double check and try again.'
+			return render_template('main.html', error = error)
+	
+	return render_template("main.html")
 
 
 #Route and function for changing user password
