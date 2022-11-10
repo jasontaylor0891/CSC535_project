@@ -307,3 +307,65 @@ def profile():
 		return(str(e))
 
 
+#Route and function for the User Profile
+@app.route('/userProfile/', methods=["GET","POST"])
+def userProfile():
+	
+	try:
+		print('Inside the userProfile try function', file=sys.stderr)
+		username = session['username']
+
+		cur = mysql.connection.cursor()
+		query = cur.execute('SELECT fname, lname, username, email, phone FROM users WHERE username = %s', [username])
+		print(query, file=sys.stderr)
+		results = cur.fetchone()
+		print(results, file=sys.stderr)
+		#results.keys()
+
+		query_fname = results["fname"]
+		query_lname = results["lname"]
+		query_username = results["username"]
+		query_email = results["email"]
+		query_phone = results["phone"]
+
+		print(query_fname, query_lname, query_username, query_email, query_phone, file=sys.stderr)
+		print("THESE ARE THE RESULTS", file=sys.stderr)
+		
+		form = RegistrationForm(request.form)
+		
+		if request.method == 'GET':
+			form.fname.data = query_fname
+			form.lname.data = query_lname
+			form.username.data = query_username
+			form.email.data = query_email
+			form.phone.data = query_phone
+
+			return render_template("userProfile.html", form=form)
+
+		elif request.method == 'POST':
+			fname = form.fname.data
+			lname = form.lname.data
+			new_username = form.username.data
+			email = form.email.data
+			phone = form.phone.data
+			mtype = form.mtype.data
+			
+			response = UserService.updateUserInformation(fname, lname, new_username, email, mtype, phone, query_username)
+			print(f'Call Responce: {response}', file=sys.stderr)
+			if response:
+				content = json.loads(response)
+				if content['Success'] == 'True':
+					flash(f'The user {username} had the profile updated')
+					return redirect(url_for('login'))
+				else:
+					errorcode = content['errorcode']
+					if errorcode == '004':
+						error = 'Errori in updating user information.'
+						return render_template("userProfile.html", form=form, error=error)
+
+		
+	
+	except Exception as e:
+		return(str(e))
+
+list = []

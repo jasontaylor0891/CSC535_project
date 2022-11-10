@@ -94,6 +94,43 @@ class UserService:
         else:
             cur.close()
             return json.dumps({'Updated': 'False', 'errorcode': '003'})
+    
+    def updateUserInformation(fname, lname, new_username, email, mtype, phone, query_username):
+        print(f'Update user information process has started', file=sys.stderr)
+
+        if mtype == "Free":
+            profile = 3
+        else:
+            profile = 2
+
+        try:
+            
+            #Update user account information
+            cur = mysql.connection.cursor()
+            sql = ("UPDATE users "
+                    "SET fname = '"+ fname + "', lname = '" +lname+ "', username = '" +new_username+ "', email = '" +email+"', phone = '" +phone+ "', profile = '"+str(profile)+"'"
+                    " WHERE username = '" + query_username + "'")
+
+
+            print(f'SQL Output {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
+
+            #Create default list
+            sql = ("UPDATE list " 
+                    "SET username = '" +new_username + "'"
+                    " WHERE username = '"+query_username + "'"
+            )
+            
+            print(f'SQL Output {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
+
+            return json.dumps({'Success': 'True'})
+
+        except Exception as e:
+            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            return json.dumps({'Success': 'False','errorcode': '004'})
 
 
 
