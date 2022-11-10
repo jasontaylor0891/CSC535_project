@@ -13,6 +13,7 @@
 		  {{render_field(form.listdesc, class_="form-control")}}
 		</div>
 		<input type="submit" class="btn btn-primary" value="Create List">
+		<a href="{{url_for('main_app', username = session.username)}}" class="btn btn-secondary">Cancel</a>
 	  </form>
 	  </div>
 	</div>

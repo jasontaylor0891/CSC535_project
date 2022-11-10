@@ -33,7 +33,6 @@ class ReminderService:
         except Exception as e:
             print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '005'})
-
     
     def displayReminders():
         username = session['username']
@@ -52,3 +51,34 @@ class ReminderService:
             cur.close()
         
         return json.dumps({'Auth': 'True', 'data':  data}, default=str)
+        
+
+    def createreminder(rname, rmessage, rstartdate, priority, rlist, username):
+        #reminders
+        print(f'Create Reminder {rname}', file=sys.stderr)
+        
+            
+        
+        try:
+
+            cur = mysql.connection.cursor()
+            results = cur.execute("SELECT listid FROM list WHERE listname = %s AND username = %s", (rlist, username))
+            if results>0:
+                data = cur.fetchone()
+                listid = str(data['listid'])
+                print(f'Output {listid}', file=sys.stderr)
+
+            sql = ("INSERT INTO reminders (remindername, reminderdesc, priority, reminderstartdate, username, listid) "
+            "VALUES('" +rname+ "', '" +rmessage+ "', '" +priority+ "', '" +rstartdate+ "', '" +username+ "', " +listid+ ")")
+
+            print(f'SQL Output {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
+            cur.close()
+            return json.dumps({'Success': 'True'})
+
+        except Exception as e:
+            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            return json.dumps({'Success': 'False','errorcode': '006'})
+
+

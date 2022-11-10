@@ -32,7 +32,7 @@ CREATE TABLE reminders(
     reminderid INT PRIMARY KEY AUTO_INCREMENT,
     remindername VARCHAR(50),
     reminderdesc VARCHAR(100),
-    priority INT,
+    priority VARCHAR(10),
     reminderstartdate DATE, 
     flaged BOOL,
 	username VARCHAR(20),
@@ -43,4 +43,12 @@ CREATE TABLE reminders(
 
 INSERT INTO users(username, password, profile) 
 VALUES
-('admin', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 1)
+('admin', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 1),
+('paid', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 2),
+('free', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 3);
+
+INSERT INTO list(listname, listdesc, username)
+VALUES
+('Default', 'Default list', 'paid'),
+('Work', 'Work list', 'paid'),
+('Default', 'Default list', 'free');

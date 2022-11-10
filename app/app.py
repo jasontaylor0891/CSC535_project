@@ -6,10 +6,10 @@ from flask import Flask, render_template, flash, redirect, url_for, request, ses
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from flask_wtf import FlaskForm
-#from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, TextField
-#from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
+from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateReminder, CreateList
+from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, CreateProfile
 from userservices import UserService
 from reminderservice import ReminderService
 from functools import wraps
@@ -148,7 +148,7 @@ def update_password(username):
 			
 			if content['Updated'] == 'True':
 				flash('Your new password will be in effect from next login!!', 'info')
-				return redirect(url_for('main_app', username = session['username']))
+				return redirect(url_for('profile', username = session['username']))
 			else:
 				errorcode = content['errorcode']
 				if errorcode == '003':
@@ -200,12 +200,64 @@ def registration():
 	except Exception as e:
 		return(str(e))
 
+list = []
+#I know we should be able to have this CreateReminder class in forms.py.  
+#I was not able to figure out how to send username to the class.
+#We can refactor this later.  Just adding this here to move the 
+#project forward until we figure out how to make this work from forms.py
+class CreateReminder(Form):
+	priority = []
+	priority.clear()
+	priority.append("None")
+	priority.append("High")
+	priority.append("Medium")
+	priority.append("Low")
+
+	ReminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
+	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
+	ReminderStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
+	priority = SelectField('Priority:', choices = priority)
+	list = SelectField('List:', choices = list)
+
 #Route and function for the create reminder page
 @app.route('/create_reminder/', methods=["GET","POST"])
 @is_logged_in
 def create_reminder():
 	try:
+		username = session['username']
+		list.clear()
+
+		#Create the list for the membership types
+		cur = mysql.connection.cursor()
+		q = cur.execute('SELECT listname FROM list WHERE username = %s', [username])
+		b = cur.fetchall()
+		for i in range(q):
+			list.append(b[i]['listname'])
+
+		print(f'XXXXXXXXXX:')
 		form = CreateReminder(request.form)
+		#print(f'XXXXXXXXXX: {form}')
+		if request.method == 'POST':
+			remindername = form.ReminderName.data
+			remindermessage = form.ReminderMessage.data
+			reminderstartdate = request.form['ReminderStartDate']
+			#reminderstartdate = form.ReminderStartDate.data
+			priority = form.priority.data
+			reminderlist = form.list.data
+			username = session['username']
+
+			responce = ReminderService.createreminder(remindername, remindermessage, reminderstartdate, priority, reminderlist, username)
+			print(f'Call Responce: {responce}', file=sys.stderr)
+			if responce:
+				content = json.loads(responce)
+				if content['Success'] == 'True':
+					flash(f'The reminder {remindername} was sucessfuly created.')
+					return redirect(url_for('main_app', username = session['username']))
+				else:
+					errorcode = content['errorcode']
+					if errorcode == '006':
+						error = 'There was an issue creating your reminder.  Please contact the administrator if the problem continues.'
+						return render_template("create_reminder.html", form=form, error=error)
 
 		return render_template("create_reminder.html", form=form)
 	except Exception as e:
@@ -214,6 +266,7 @@ def create_reminder():
 #Route and function for the create reminder page
 @app.route('/createlist/', methods=["GET","POST"])
 @is_logged_in
+@is_paid_tie
 def createlist():
 	try:
 		form = CreateList(request.form)
@@ -238,4 +291,19 @@ def createlist():
 		return render_template("createlist.html", form=form)
 	except Exception as e:
 		return(str(e))
+
+#Route and function for the create reminder page
+@app.route('/profile/', methods=["GET","POST"])
+@is_logged_in
+def profile():
+	try:
+		form = CreateProfile(request.form)
+		#if request.method == 'POST':
+			
+
+
+		return render_template("profile.html", form=form)
+	except Exception as e:
+		return(str(e))
+
 
