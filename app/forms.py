@@ -60,4 +60,17 @@ class CreateList(Form):
 
 	listname = StringField('List Name:', [validators.Length(max=50)])
 	listdesc = StringField('List Description:', [validators.Length(max=250)])
-	
+
+
+class updateUserProfile(Form):
+	membershipType = []
+	membershipType.clear()
+	membershipType.append("Free")
+	membershipType.append("Paid")
+
+	fname = StringField('First Name:', [validators.Length(min=3, max=20)])
+	lname = StringField('Last Name:', [validators.Length(min=3, max=20)])
+	username = StringField('Username:', [validators.Length(min=6, max=20)])
+	email = StringField('Email Address:', [validators.Length(min=6, max=50)])
+	mtype = SelectField('Membership Type:', choices = membershipType)
+	phone = StringField('Phone Number:', [validators.Length(min=10, max=10)])

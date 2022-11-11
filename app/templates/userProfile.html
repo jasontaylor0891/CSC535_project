@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div class="jumbotron" style="background-color:#F0F8FF;">
+<div class="jumbotron p-4 text-left" style="background-color:#F0F8FF;">
 	<h1 style="font-variant: small-caps;">User Information</h1>
   <h2>You can edit any of your information below:</h2>
     {% from "includes/_formhelpers.html" import render_field %}
@@ -24,8 +24,8 @@
           <div class="form-group">
             {{render_field(form.mtype, class_="form-control")}}
           </div>
-          
 		<button type="submit" class="btn btn-primary">Update Information</button>
+    <a href="{{url_for('main_app', username = session.username)}}" class="btn btn-secondary p-2">Cancel</a>
 	</form> 
 	</div>
 {% endblock %}

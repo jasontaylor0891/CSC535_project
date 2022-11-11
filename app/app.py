@@ -9,7 +9,7 @@ from flask_wtf import FlaskForm
 from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
-from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, CreateProfile
+from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, CreateProfile, updateUserProfile
 from userservices import UserService
 from reminderservice import ReminderService
 from functools import wraps
@@ -331,7 +331,7 @@ def userProfile():
 		print(query_fname, query_lname, query_username, query_email, query_phone, file=sys.stderr)
 		print("THESE ARE THE RESULTS", file=sys.stderr)
 		
-		form = RegistrationForm(request.form)
+		form = updateUserProfile(request.form)
 		
 		if request.method == 'GET':
 			form.fname.data = query_fname
@@ -363,9 +363,7 @@ def userProfile():
 						error = 'Errori in updating user information.'
 						return render_template("userProfile.html", form=form, error=error)
 
-		
+		return render_template("userProfile.html", form=form)
 	
 	except Exception as e:
 		return(str(e))
-
-list = []
