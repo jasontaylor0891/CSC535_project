@@ -1,4 +1,4 @@
-name: Pylint
+name: Linting and Security Checks
 
 on: [push]
 
