@@ -23,9 +23,11 @@ jobs:
         pylint --errors-only --disable=E0401,E0213,E0211 $(git ls-files '*.py') 
   SecurityCheck:
     runs-on: ubuntu-latest
-    name: Execute the pycharm-security action
+    name: Execute Security Scan
     steps:
       - uses: actions/checkout@v1
       - name: Run PyCharm Security
         uses: tonybaloney/pycharm-security@master
+        with:
+          fail_on_warnings="yes"
 
