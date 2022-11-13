@@ -23,14 +23,9 @@ jobs:
         pylint --errors-only --disable=E0401,E0213,E0211 $(git ls-files '*.py') 
   SecurityCheck:
     runs-on: ubuntu-latest
+    name: Execute the pycharm-security action
     steps:
-    - uses: actions/checkout@v3
-    - name: Bandit Security Check
-      uses: mdegis/bandit-action@v1.0
-      with: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        path: "."
-        level: high
-        confidence: high
-        exit_zero: true
+      - uses: actions/checkout@v1
+      - name: Run PyCharm Security
+        uses: tonybaloney/pycharm-security@master
 
