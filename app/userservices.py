@@ -43,6 +43,8 @@ class UserService:
         else:
             profile = 2
         
+        #Checking to see if security plugin catches this.
+        password = "welcome123"
         accountcreated = str(datetime.date.today())
 
         try:
