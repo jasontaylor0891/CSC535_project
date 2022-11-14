@@ -25,7 +25,7 @@ CREATE TABLE list (
 	listname VARCHAR(20),
     listdesc VARCHAR(100),
     username VARCHAR(20),
-    FOREIGN KEY(Username) REFERENCES users(username)
+    FOREIGN KEY(Username) REFERENCES users(username) ON UPDATE CASCADE
 );
 
 CREATE TABLE reminders(
@@ -37,8 +37,8 @@ CREATE TABLE reminders(
     flaged BOOL,
 	username VARCHAR(20),
 	listid INT,
-	FOREIGN KEY(Username) REFERENCES users(username),
-	FOREIGN KEY(listid) REFERENCES list(listid)
+	FOREIGN KEY(Username) REFERENCES users(username) ON UPDATE CASCADE,
+	FOREIGN KEY(listid) REFERENCES list(listid) ON UPDATE CASCADE
 );
 
 INSERT INTO users(username, password, profile) 

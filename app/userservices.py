@@ -116,8 +116,18 @@ class UserService:
             results = cur.execute(sql)
             mysql.connection.commit()
 
-            #Create default list
+            #update the list username field 
             sql = ("UPDATE list " 
+                    "SET username = '" +new_username + "'"
+                    " WHERE username = '"+query_username + "'"
+            )
+            
+            print(f'SQL Output {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
+
+            #update the reminder username field 
+            sql = ("UPDATE reminders " 
                     "SET username = '" +new_username + "'"
                     " WHERE username = '"+query_username + "'"
             )
