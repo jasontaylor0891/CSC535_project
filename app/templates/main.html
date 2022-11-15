@@ -41,7 +41,7 @@
                    <td>{{item['flaged']}}</td>
                    <td>{{item['listid']}}</td>
                    <td> <button class="btn-success">EDIT</button> </td>
-                   <td> <button class="btn-danger">DELETE</button> </td>
+                   <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid)}}" class="btn-danger" >DELETE</a> </td>
                </tr>
                {% endfor %}
           </tbody> 

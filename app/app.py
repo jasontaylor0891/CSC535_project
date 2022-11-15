@@ -367,3 +367,23 @@ def userProfile():
 	
 	except Exception as e:
 		return(str(e))
+
+@app.route('/deleteReminder/<int:reminderId>', methods=['GET', 'POST'])
+@is_logged_in
+def deleteReminder(reminderId):
+	print('MADE IT INSIDE DELETE REMINDER FUNCTION', file=sys.stderr)
+	print(reminderId, file=sys.stderr)
+	#Delete the reminder
+	delete_Reminder = ReminderService.deleteReminder(reminderId)
+	if delete_Reminder:
+		content = json.loads(delete_Reminder)
+		if content['Success'] == 'True':
+				flash(f'The reminder was sucessfuly deleted!')
+				return redirect(url_for('main_app', username = session['username']))
+		else:
+			errorcode = content['errorcode']
+			if errorcode == '006':
+				error = 'There was an issue deleting your reminder.'
+				return render_template("main_app.html")
+						
+    			#return redirect(url_for('main_app'))
