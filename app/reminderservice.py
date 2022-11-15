@@ -39,7 +39,10 @@ class ReminderService:
         print(f'Displaying reminders for user {username}', file=sys.stderr)
 
         cur = mysql.connection.cursor()
-        result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
+        #result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
+        result = cur.execute(
+        'select reminders.*, list.listname from reminders LEFT JOIN list on reminders.username = list.username where reminders.username = %s and reminders.listid = list.listid;',[username]
+        )
        
         if result == 0:
             cur.close()
