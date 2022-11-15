@@ -81,4 +81,14 @@ class ReminderService:
             print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '006'})
 
+    def deleteReminder(reminderId):
+
+        cur = mysql.connection.cursor()
+        sql = ('DELETE FROM reminders WHERE reminderid =' + str(reminderId))
+        print(f'SQL Output {sql}', file=sys.stderr)
+        results = cur.execute(sql)
+        mysql.connection.commit()
+
+        return json.dumps({'Success': 'True'})
+
 
