@@ -85,7 +85,9 @@ def index():
 def login():
 	
 	form = LoginForm(request.form)
-	
+	# if request.method == 'GET':
+	# 		form.username.data = username
+
 	if request.method == 'POST' and form.validate():
 		username = request.form['username']
 		password_candidate = request.form['password']
@@ -105,6 +107,8 @@ def login():
 					error = 'The username and password you entered did not match our records.  Please double check and try again.'
 				if errorcode == '002': 
 					error = 'Your username was not found in our records. Please double check and try again.'
+				if errorcode == '007': 
+					error = 'Your account has been locked. Please contact the administrator.'
 				return render_template('login.html', form = form, error = error)
 
 	return render_template('login.html', form = form)
@@ -234,9 +238,8 @@ def create_reminder():
 		for i in range(q):
 			list.append(b[i]['listname'])
 
-		print(f'XXXXXXXXXX:')
 		form = CreateReminder(request.form)
-		#print(f'XXXXXXXXXX: {form}')
+		
 		if request.method == 'POST':
 			remindername = form.ReminderName.data
 			remindermessage = form.ReminderMessage.data
