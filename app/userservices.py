@@ -15,25 +15,50 @@ class UserService:
 
     def login(username, password_candidate):
         print(f'User {username} login attempt started', file=sys.stderr)
+        login_attempt = 0
 
         cur = mysql.connection.cursor()
-        result = cur.execute('SELECT * FROM users WHERE username = %s', [username])
+        result = cur.execute("SELECT loginAttempt, accountEnabled FROM users WHERE username = %s", [username])
+        data = cur.fetchone()
+        login_attempt = data['loginAttempt']
+        account_enabled = data['accountEnabled']
 
-        if result == 0:
+        if account_enabled:
+            print(f'Login Attempts: {login_attempt}', file=sys.stderr)
+            if login_attempt == 2:
+                result = cur.execute("UPDATE users SET accountEnabled = False WHERE username = %s", [username])
+                mysql.connection.commit()
+                cur.close()
+                return json.dumps({'Auth': 'False','errorcode': '007'})
+
+            
+            result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
+
+            if result == 0:
+                cur.close()
+                print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
+                return json.dumps({'Auth': 'False','errorcode': '002'})
+
+            if result>0:
+                data = cur.fetchone()
+                password = data['password']
+
+                if sha256_crypt.verify(password_candidate, data['password']):
+                    cur.execute("UPDATE users SET loginAttempt = 0 WHERE username = %s", [username])
+                    mysql.connection.commit()
+                    cur.close()
+                    return json.dumps({'Auth': 'True', 'profile':  data['profile'], 'username': data['username']})
+                else:
+                    login_attempt = login_attempt + 1
+                    result = cur.execute("UPDATE users SET loginAttempt = %s WHERE username = %s", [str(login_attempt), username])
+                    mysql.connection.commit()
+                    cur.close()
+                    print(f'User {username} login failed. 401 Not Authorized', file=sys.stderr)
+                    return json.dumps({'Auth': 'False','errorcode': '001'})
+
+        else:
             cur.close()
-            print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
-            return json.dumps({'Auth': 'False','errorcode': '002'})
-
-        if result>0:
-            data = cur.fetchone()
-            cur.close()
-            password = data['password']
-
-            if sha256_crypt.verify(password_candidate, data['password']):
-                return json.dumps({'Auth': 'True', 'profile':  data['profile'], 'username': data['username']})
-            else:
-                print(f'User {username} login failed. 401 Not Authorized', file=sys.stderr)
-                return json.dumps({'Auth': 'False','errorcode': '001'})
+            return json.dumps({'Auth': 'False','errorcode': '007'})
 
     def registration(fname, lname, username, email, password, mtype, phone):
         print(f'Registration process has started', file=sys.stderr)
