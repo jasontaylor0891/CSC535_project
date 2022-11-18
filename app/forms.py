@@ -11,6 +11,7 @@ class ChangePasswordForm(Form):
 	old_password = PasswordField('Existing Password:')
 	new_password = PasswordField('New Password:', [
 		validators.DataRequired(),
+		validators.Length(min=12),
 		validators.EqualTo('confirm', message = 'Passwords do not match!')
 	])
 	confirm = PasswordField('Confirm Password:')
@@ -27,6 +28,7 @@ class RegistrationForm(Form):
 	email = StringField('Email Address:', [validators.Length(min=6, max=50)])
 	password = PasswordField('Password:', [
         validators.InputRequired(),
+		validators.Length(min=12),
         validators.EqualTo('confirm:', message='Passwords must match')
     ])
 	confirm = PasswordField('Confirm Password:')
