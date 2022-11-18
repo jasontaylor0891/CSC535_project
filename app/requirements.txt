@@ -7,3 +7,4 @@ Flask-Script
 flask-wtf
 wtforms-html5
 email_validator
+password-strength
