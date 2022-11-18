@@ -157,7 +157,9 @@ def update_password(username):
 				errorcode = content['errorcode']
 				if errorcode == '003':
 					error = 'Your current password you entered did not match our records. Please double check and try again.'
-					return render_template('updatePassword.html', form = form, error = error)
+				if errorcode == '008':
+						error = 'Tne new password does not meet length or complexity requirements. (minimum length 12 characters, 2 uppercase characters, 2 numeric characters, and 2 special characters.)'
+				return render_template('updatePassword.html', form = form, error = error)
 
 	return render_template('updatePassword.html', form = form)
 
@@ -197,7 +199,9 @@ def registration():
 					errorcode = content['errorcode']
 					if errorcode == '004':
 						error = 'There was an issue during the registration process. Please contact the administrator if the problem continues.'
-						return render_template("registration.html", form=form, error=error)
+					if errorcode == '008':
+						error = 'Password does not meet length or complexity requirements. (minimum length 12 characters, 2 uppercase characters, 2 numeric characters, and 2 special characters.)'
+					return render_template("registration.html", form=form, error=error)
 
 		return render_template("registration.html", form=form)
 	
