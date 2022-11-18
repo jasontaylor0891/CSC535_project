@@ -6,12 +6,48 @@ import datetime
 from flask_mysqldb import MySQL
 from flask import Flask, make_response, request, jsonify
 from passlib.hash import sha256_crypt
+from password_strength import PasswordPolicy
+from password_strength import PasswordStats
+
 
 mysql = MySQL()
 
 class UserService:
     def __init__(self):
         print('init called', file=sys.stderr)
+
+    def check_password_complexity(password):
+        
+        password_policy = PasswordPolicy.from_names(
+            length=12,  # min length: 12
+            uppercase=2,  # need min. 2 uppercase letters
+            numbers=2,  # need min. 2 digits
+            special=2   # needs min 2 special characters
+        )
+
+        complex = True
+        stats = PasswordStats(password)
+        checkpolicy = password_policy.test(password)
+
+        print(stats.strength())
+        for i in checkpolicy:
+            if str(i) == "Length(12)":
+                complex = False
+                break
+            if str(i) == "Uppercase(2)":
+                complex = False
+                break
+            if str(i) == "Numbers(2)":
+                complex = False
+                break
+            if str(i) == "Special(2)":
+                complex = False
+                break
+            
+        if stats.strength() < 0.66 or not complex:
+            return False
+        else:
+            return True
 
     def login(username, password_candidate):
         print(f'User {username} login attempt started', file=sys.stderr)
@@ -63,6 +99,9 @@ class UserService:
     def registration(fname, lname, username, email, password, mtype, phone):
         print(f'Registration process has started', file=sys.stderr)
 
+        if not UserService.check_password_complexity(password):
+            return json.dumps({'Success': 'False','errorcode': '008'})
+
         if mtype == "Free":
             profile = 3
         else:
@@ -104,6 +143,9 @@ class UserService:
     def updatepassword(username, oldpassword, newpassword):
         
         print(f'User {username} has started password change', file=sys.stderr)
+
+        if not UserService.check_password_complexity(newpassword):
+            return json.dumps({'Updated': 'False','errorcode': '008'})
         
         #getting current password from the database
         cur = mysql.connection.cursor()
@@ -166,6 +208,9 @@ class UserService:
         except Exception as e:
             print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '004'})
+
+    
+
 
 
 
