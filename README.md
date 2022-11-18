@@ -45,7 +45,7 @@ To deploy this project in testing mode run:
 ## Local Database Access
 
 ```bash
-  docker exec -it CSC535_project_db_1 mysql -ucsc535 -p
+  docker exec -it csc535_project_db_1 mysql -ucsc535 -p
 ```
 ## Website Access
 
