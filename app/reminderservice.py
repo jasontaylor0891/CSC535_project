@@ -94,4 +94,24 @@ class ReminderService:
 
         return json.dumps({'Success': 'True'})
 
+    def filterTheReminder(filterStartDate1,filterEndDate1):
+        username = session['username']
+        print(f'Displaying reminders for user {username}', file=sys.stderr)
 
+        cur = mysql.connection.cursor()
+        #result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
+        result = cur.execute(
+        'select reminders.*, list.listname from reminders LEFT JOIN list on reminders.username = list.username where reminders.username = %s and reminders.listid = list.listid and (reminders.reminderstartdate>=%s and reminders.reminderstartdate<=%s);',[username,filterStartDate1,filterEndDate1]
+        )
+       
+        if result == 0:
+            cur.close()
+            data = cur.fetchall()
+            print(f'Did not find any reminders!', file=sys.stderr)
+            return json.dumps({'Success': 'False','data': data, 'errorcode': '1'})
+
+        if result>0:
+            data = cur.fetchall()
+            print(f'Found some reminders in date range!', file=sys.stderr)
+            cur.close()
+        return json.dumps({'Success': 'True', 'data':  data}, default=str)
