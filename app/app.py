@@ -394,3 +394,56 @@ def deleteReminder(reminderId):
 				return render_template("main_app.html")
 						
     			#return redirect(url_for('main_app'))
+
+class filterReminder(Form):
+	filterStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
+	filterEndDate = DateField('End Date (DD-MM-YYYY)', format='%d-%m-%Y')
+
+#Route and Function for adminDashboard
+@app.route('/mainWithFilter', methods = ['GET', 'POST'])
+@is_logged_in
+def mainWithFilter():
+	form = filterReminder(request.form)
+	responce = ReminderService.displayReminders()
+
+	if responce:
+		content = json.loads(responce)
+
+		if content['Auth'] == 'True':  
+			if request.method == 'POST':
+				filterStartDate1 = request.form['filterStartDate']
+				filterEndDate1 = request.form['filterEndDate']
+				print(filterStartDate1, file=sys.stderr)
+				print(filterEndDate1, file=sys.stderr)
+				if not filterStartDate1 or not filterEndDate1:
+					flash('You need to enter BOTH a start and end date! Still displaying all reminders!', 'danger')
+					return redirect(url_for('mainWithFilter'))
+				elif filterStartDate1 > filterEndDate1:
+					flash('Start date must be before end date! Still dislaying all reminders!', 'danger')
+					return redirect(url_for('mainWithFilter'))
+				print("PAST THE NULL CHECK!", file=sys.stderr)
+				responseFilter = ReminderService.filterTheReminder(filterStartDate1,filterEndDate1)
+				newContent = json.loads(responseFilter)
+				print(newContent, file=sys.stderr)
+				if newContent['Success'] == 'True':
+					return render_template("mainWithFilter.html", data=newContent['data'], success="true", form = form)
+				else:	
+					flash('No reminders were found in this date range!', 'danger')
+					#return redirect(url_for('mainWithFilter'))
+					return render_template("mainWithFilter.html", data=newContent['data'], success="false", form = form)	
+			return render_template("mainWithFilter.html", data=content['data'], success="true", form = form)
+		else:
+			errorcode = content['errorcode']
+			if errorcode == '006':
+				error = 'There was an issue deleting your reminder.'
+				return render_template("mainWithFilter.html", data=content['data'], success="true", form = form)
+			else:
+				return render_template("mainWithFilter.html", data=content['data'], success="true", form = form)
+
+	else:
+		errorcode = content['errorcode']
+		if errorcode == '002': 
+			error = 'No reminders to display. Please double check and try again.'
+			return render_template('mainWithFilter.html', error = error, form = form)
+
+	return render_template("mainWithFilter.html", form = form)

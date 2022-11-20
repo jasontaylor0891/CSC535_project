@@ -4,10 +4,26 @@
   <div class="text-white">
     <a class="button" href = "{{url_for('userProfile')}}">View My Profile</a>
 	  <h1 style="font-family: Georgia, serif;">Main Page for reminder application</h1>
+
+    <div class="p-4 text-left" style="background-color:#023d16;">
+      <h1 style="font-variant: small-caps;">Filter Remnders by Date Range:</h1>
+        {% from "includes/_formhelpers.html" import render_field %}
+      <form action="" method="POST">
+        <div class="form-group p-2">
+                {{render_field(form.filterStartDate, class_="form-control")}}
+              </div>
+              <div class="form-group" p-2>
+                {{render_field(form.filterEndDate, class_="form-control")}}
+              </div>
+              
+        <button type="submit" class="btn btn-primary p-2">Submit</button>
+        <a href="{{url_for('main_app', username = session.username)}}" class="btn btn-secondary p-2">Cancel</a>
+      </form> 
+      </div>
+
    
   {% if success %}
     <h1 style="font-variant: small-caps;">View Reminders:</h1>
-    <a class="button" href = "{{url_for('mainWithFilter')}}">Click to Display Filter</a>
     <div class="font-italic" style="background-color:#F0F8FF; color: black;">
      <!--<div class="list-group">
         <a href="#" class="list-group-item list-group-item-action">Reminder 1 <button class="btn-danger float-right">DELETE</button> <button class="btn-success float-right">EDIT</button> </a>
