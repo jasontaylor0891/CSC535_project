@@ -4,6 +4,7 @@ import datetime
 
 from flask_mysqldb import MySQL
 from flask import current_app, session
+from utility import *
 
 mysql = MySQL()
 
@@ -46,7 +47,7 @@ class ReminderService:
        
         if result == 0:
             cur.close()
-            print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
+            #print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
             return json.dumps({'Auth': 'False','errorcode': '002'})
 
         if result>0:
