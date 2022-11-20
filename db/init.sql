@@ -42,11 +42,11 @@ CREATE TABLE reminders(
 	FOREIGN KEY(listid) REFERENCES list(listid) ON UPDATE CASCADE
 );
 
-INSERT INTO users(fname, lname, username, email, phone, password, profile, loginAttempt) 
+INSERT INTO users(fname, lname, username, email, phone, password, profile, loginAttempt, accountEnabled) 
 VALUES
-('Admin', 'User', 'admin', 'admin@email.com', '2035551234', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 1, 0),
-('Paid', 'User', 'paid', 'paid@email.com', '2035551234', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 2, 0),
-('Free', 'User', 'free', 'free@email.com', '2035551234', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 3, 0);
+('Admin', 'User', 'admin', 'admin@email.com', '2035551234', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 1, 0, True),
+('Paid', 'User', 'paid', 'paid@email.com', '2035551234', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 2, 0, True),
+('Free', 'User', 'free', 'free@email.com', '2035551234', '$5$rounds=535000$t6Y73jKPWxeNh9Ru$teQmHgaGdlo6U/xUzdYoK414w9P7Uhyu2b5GIA1tGv1', 3, 0, True);
 
 
 INSERT INTO list(listname, listdesc, username)

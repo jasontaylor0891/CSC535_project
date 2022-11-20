@@ -14,6 +14,7 @@ services:
       MYSQL_PASSWORD: welcome123
       MYSQL_DB: csc535
       MYSQL_CURSORCLASS: DictCursor
+      LOGLEVEL: INFO
 
 
   db:

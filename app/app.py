@@ -14,6 +14,7 @@ from userservices import UserService
 from reminderservice import ReminderService
 from functools import wraps
 from datetime import datetime
+from utility import *
 
 
 app = Flask(__name__, template_folder='templates')

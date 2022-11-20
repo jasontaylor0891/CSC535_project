@@ -2,15 +2,18 @@
 import sys
 import json
 import datetime
+import os
 
 from flask_mysqldb import MySQL
 from flask import Flask, make_response, request, jsonify
 from passlib.hash import sha256_crypt
 from password_strength import PasswordPolicy
 from password_strength import PasswordStats
-
+from utility import *
 
 mysql = MySQL()
+
+
 
 class UserService:
     def __init__(self):
@@ -50,7 +53,8 @@ class UserService:
             return True
 
     def login(username, password_candidate):
-        print(f'User {username} login attempt started', file=sys.stderr)
+    
+        logging.info(f'User {username} login attempt started')
         login_attempt = 0
 
         cur = mysql.connection.cursor()
@@ -59,8 +63,10 @@ class UserService:
         login_attempt = data['loginAttempt']
         account_enabled = data['accountEnabled']
 
+        logging.debug(f'Login Attempts: {login_attempt}')
+        logging.debug(f'Account Enabled: {account_enabled}')
+
         if account_enabled:
-            print(f'Login Attempts: {login_attempt}', file=sys.stderr)
             if login_attempt == 2:
                 result = cur.execute("UPDATE users SET accountEnabled = False WHERE username = %s", [username])
                 mysql.connection.commit()
@@ -72,7 +78,7 @@ class UserService:
 
             if result == 0:
                 cur.close()
-                print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
+                logging.error('User {username} login failed. 401 Not Authorized')
                 return json.dumps({'Auth': 'False','errorcode': '002'})
 
             if result>0:
@@ -89,7 +95,7 @@ class UserService:
                     result = cur.execute("UPDATE users SET loginAttempt = %s WHERE username = %s", [str(login_attempt), username])
                     mysql.connection.commit()
                     cur.close()
-                    print(f'User {username} login failed. 401 Not Authorized', file=sys.stderr)
+                    logging.error(f'User {username} login failed. 401 Not Authorized')
                     return json.dumps({'Auth': 'False','errorcode': '001'})
 
         else:
