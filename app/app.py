@@ -224,7 +224,7 @@ class CreateReminder(Form):
 
 	ReminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
 	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
-	ReminderStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
+	ReminderStartDate = DateField('Start Date (MM/DD/YYYY)', format='%d-%m-%Y')
 	priority = SelectField('Priority:', choices = priority)
 	list = SelectField('List:', choices = list)
 
@@ -448,3 +448,103 @@ def mainWithFilter():
 			return render_template('mainWithFilter.html', error = error, form = form)
 
 	return render_template("mainWithFilter.html", form = form)
+
+
+# Not sure how to pass 'list' choices to forms.py so adding this class here
+list_for_edit = []
+class edit_Reminder(Form):
+	priority = []
+	priority.clear()
+	priority.append("None")
+	priority.append("High")
+	priority.append("Medium")
+	priority.append("Low")
+
+	reminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
+	reminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
+	reminderStartDate = DateField('Start Date (MM/DD/YYYY)', format='%d-%m-%Y')
+	priority = SelectField('Priority:', choices = priority)
+	list = SelectField('List:', choices = list_for_edit)
+
+#Route and function for edit reminder
+@app.route('/editReminder/<int:reminderId>', methods=["GET","POST"])
+def editReminder(reminderId):
+	
+	try:
+		print('Inside editReminder function', file=sys.stderr)
+		print(f'Reminder ID: {reminderId}', file=sys.stderr)
+
+		username = session['username']
+		list_for_edit.clear()
+
+		#Fetch reminder details of the reminder selected by user
+		cur = mysql.connection.cursor()
+		query = cur.execute( 'SELECT remindername, reminderdesc, priority, reminderstartdate, username, listid FROM reminders WHERE username = %s and reminderid = %s ', [username,reminderId])
+		print(query, file=sys.stderr)
+		results = cur.fetchone()
+		print(results, file=sys.stderr)
+
+		#Fetch list details of the user
+		list_dict = {}
+		q = cur.execute('SELECT listid, listname FROM list WHERE username = %s', [username])
+		b = cur.fetchall()
+		for i in range(q):
+			list_for_edit.append(b[i]['listname'])
+			list_dict[b[i]['listid']] = b[i]['listname']
+		
+		print(list_dict,file=sys.stderr)
+
+		query_remindername = results["remindername"]
+		query_reminderdesc = results["reminderdesc"]
+		query_priority = results["priority"]
+		query_reminderstartdate = results["reminderstartdate"]
+		listName = list_dict[results["listid"]]
+
+		print("Reminder results from DB:", file=sys.stderr)
+		print(query_remindername, query_reminderdesc, query_priority, query_reminderstartdate, listName, file=sys.stderr)
+		
+		form = edit_Reminder(request.form)
+		
+		if request.method == 'GET':
+			print(f"GET request" , file=sys.stderr)
+			form.reminderName.data = query_remindername
+			form.reminderMessage.data = query_reminderdesc
+			form.priority.data = query_priority
+			form.list.data = listName
+			#date field
+			form.reminderStartDate.raw_data = [str(query_reminderstartdate)]
+			form.reminderStartDate.process_data(query_reminderstartdate)
+
+			return render_template("edit_reminder.html", form=form)
+		
+		elif request.method == 'POST':
+			print(f"POST request" , file=sys.stderr)
+			rem_name = form.reminderName.data
+			rem_desc = form.reminderMessage.data 
+			rem_priority = form.priority.data
+			rem_list = form.list.data
+			#rem_startdate = form.reminderStartDate.data
+			rem_startdate = request.form['reminderStartDate']
+
+			print(f'Reminder details passed to Reminder service for edit:',file=sys.stderr)
+			print(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, username, reminderId, file=sys.stderr)
+
+			response = ReminderService.editreminder(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, username, reminderId)
+			print(f'Edit reminder call response: {response}', file=sys.stderr)
+
+			if response:
+				content = json.loads(response)
+
+				if content['Success'] == 'True':
+					flash(f'Reminder {rem_name} was sucessfuly updated.', 'success')
+					return redirect(url_for('main_app', username = session['username'])) 
+				else:
+					errorcode = content['errorcode']
+					if errorcode == '009':
+						flash('Error in updating reminder. Please try again later.', 'danger')
+						return redirect(url_for('main_app', username = session['username']))
+			
+		return render_template("edit_reminder.html", form=form)
+		
+	except Exception as e:
+		return(str(e))
