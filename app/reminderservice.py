@@ -42,7 +42,7 @@ class ReminderService:
         cur = mysql.connection.cursor()
         #result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
         result = cur.execute(
-        'select reminders.*, list.listname from reminders LEFT JOIN list on reminders.username = list.username where reminders.username = %s and reminders.listid = list.listid;',[username]
+        'select reminders.*, list.listname from reminders LEFT JOIN list on reminders.username = list.username where reminders.username = %s and reminders.listid = list.listid ORDER BY reminders.reminderstartdate;',[username]
         )
        
         if result == 0:
@@ -116,3 +116,33 @@ class ReminderService:
             print(f'Found some reminders in date range!', file=sys.stderr)
             cur.close()
         return json.dumps({'Success': 'True', 'data':  data}, default=str)
+
+    
+    def editreminder( rname, rdesc, rpriority, rlist, rstartdate, username, rId):
+        print(f'Edit Reminder {rname}', file=sys.stderr)
+        print(f'Reminder details received in Reminder service for edit:',file=sys.stderr)
+        print(rname, rdesc, rpriority, rlist, rstartdate, username, rId, file=sys.stderr)
+        
+        try:
+
+            cur = mysql.connection.cursor()
+            results = cur.execute("SELECT listid FROM list WHERE listname = %s AND username = %s", (rlist, username))
+
+            if results>0:
+                data = cur.fetchone()
+                listid = str(data['listid'])
+                print(f'Fetch list output {listid}', file=sys.stderr)
+
+            sql = ("UPDATE reminders SET remindername='" + rname + "', reminderdesc='" + rdesc +"', priority='" + rpriority + "', "
+            "reminderstartdate='" + rstartdate + "', listid=" + listid + " where username='" + username + "' and reminderid=" + str(rId))
+
+            print(f'Edit reminder SQL:  {sql}', file=sys.stderr)
+            results = cur.execute(sql)
+            mysql.connection.commit()
+            cur.close()
+            return json.dumps({'Success': 'True'})
+
+        except Exception as e:
+            print(f'{datetime.datetime.now()} Error in edit reminder: {str(e)}', file=sys.stderr)
+            return json.dumps({'Success': 'False','errorcode': '009'})
+    
