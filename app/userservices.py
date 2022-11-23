@@ -59,6 +59,11 @@ class UserService:
 
         cur = mysql.connection.cursor()
         result = cur.execute("SELECT loginAttempt, accountEnabled FROM users WHERE username = %s", [username])
+        if result == 0:
+            cur.close()
+            logging.error('User {username} login failed. 401 Not Authorized')
+            return json.dumps({'Auth': 'False','errorcode': '002'})
+
         data = cur.fetchone()
         login_attempt = data['loginAttempt']
         account_enabled = data['accountEnabled']
@@ -75,11 +80,6 @@ class UserService:
 
             
             result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
-
-            if result == 0:
-                cur.close()
-                logging.error('User {username} login failed. 401 Not Authorized')
-                return json.dumps({'Auth': 'False','errorcode': '002'})
 
             if result>0:
                 data = cur.fetchone()
