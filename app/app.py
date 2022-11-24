@@ -194,7 +194,7 @@ def registration():
 			if responce:
 				content = json.loads(responce)
 				if content['Success'] == 'True':
-					flash(f'The user {username} was sucessfuly created.')
+					flash(f'The user {username} was sucessfuly created.', 'info')
 					return redirect(url_for('login'))
 				else:
 					errorcode = content['errorcode']
@@ -259,7 +259,7 @@ def create_reminder():
 			if responce:
 				content = json.loads(responce)
 				if content['Success'] == 'True':
-					flash(f'The reminder {remindername} was sucessfuly created.')
+					flash(f'The reminder {remindername} was sucessfuly created.', 'info')
 					return redirect(url_for('main_app', username = session['username']))
 				else:
 					errorcode = content['errorcode']
@@ -287,7 +287,7 @@ def createlist():
 			if responce:
 				content = json.loads(responce)
 				if content['Success'] == 'True':
-					flash(f'The list {listname} was sucessfuly created.')
+					flash(f'The list {listname} was sucessfuly created.', 'info')
 					return redirect(url_for('main_app', username = session['username']))
 				else:
 					errorcode = content['errorcode']
@@ -363,7 +363,7 @@ def userProfile():
 			if response:
 				content = json.loads(response)
 				if content['Success'] == 'True':
-					flash(f'The user {username} had the profile updated')
+					flash(f'The user {username} had the profile updated', 'info')
 					return redirect(url_for('login'))
 				else:
 					errorcode = content['errorcode']
@@ -386,7 +386,7 @@ def deleteReminder(reminderId):
 	if delete_Reminder:
 		content = json.loads(delete_Reminder)
 		if content['Success'] == 'True':
-				flash(f'The reminder was sucessfuly deleted!')
+				flash(f'The reminder was sucessfuly deleted!', 'info')
 				return redirect(url_for('main_app', username = session['username']))
 		else:
 			errorcode = content['errorcode']
