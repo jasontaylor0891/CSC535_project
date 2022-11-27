@@ -1,6 +1,17 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<style>
+  .checkbox {
+  height: 22px;
+  width: 22px;
+  display: inline-block;
+  margin-left: 20px;
+  vertical-align: middle;
+  margin-bottom: 10px;
+}
+</style>
+
 <div class="jumbotron p-4 text-left" style="background-color:#F0F8FF;">
 	<h1 style="font-variant: small-caps;">Edit Reminder</h1>
     <h4>You can edit any of the reminder details below: </h4>
@@ -21,6 +32,9 @@
           </div>
           <div class="form-group p-2">
             {{render_field(form.list, class_="form-control")}}
+          </div>
+          <div class="form-group p-2">
+            {{render_field(form.flag, class_="checkbox")}}
           </div>
 		<button type="submit" class="btn btn-primary p-2">Update Reminder</button>
     <a href="{{url_for('main_app', username = session.username)}}" class="btn btn-secondary p-2">Cancel</a>
