@@ -6,7 +6,7 @@ from flask import Flask, render_template, flash, redirect, url_for, request, ses
 from flask_mysqldb import MySQL
 from passlib.hash import sha256_crypt
 from flask_wtf import FlaskForm
-from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField
+from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, widgets, SelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
 from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, CreateProfile, updateUserProfile
@@ -209,6 +209,7 @@ def registration():
 	except Exception as e:
 		return(str(e))
 
+
 list = []
 #I know we should be able to have this CreateReminder class in forms.py.  
 #I was not able to figure out how to send username to the class.
@@ -227,6 +228,8 @@ class CreateReminder(Form):
 	ReminderStartDate = DateField('Start Date (MM/DD/YYYY)', format='%d-%m-%Y')
 	priority = SelectField('Priority:', choices = priority)
 	list = SelectField('List:', choices = list)
+	flag = BooleanField('Flag this reminder?', default=False)
+	
 
 #Route and function for the create reminder page
 @app.route('/create_reminder/', methods=["GET","POST"])
@@ -253,8 +256,9 @@ def create_reminder():
 			priority = form.priority.data
 			reminderlist = form.list.data
 			username = session['username']
+			flag = form.flag.data
 
-			responce = ReminderService.createreminder(remindername, remindermessage, reminderstartdate, priority, reminderlist, username)
+			responce = ReminderService.createreminder(remindername, remindermessage, reminderstartdate, priority, reminderlist, username, flag)
 			print(f'Call Responce: {responce}', file=sys.stderr)
 			if responce:
 				content = json.loads(responce)
@@ -465,6 +469,7 @@ class edit_Reminder(Form):
 	reminderStartDate = DateField('Start Date (MM/DD/YYYY)', format='%d-%m-%Y')
 	priority = SelectField('Priority:', choices = priority)
 	list = SelectField('List:', choices = list_for_edit)
+	flag = BooleanField('Flag this reminder?', default=False)
 
 #Route and function for edit reminder
 @app.route('/editReminder/<int:reminderId>', methods=["GET","POST"])
@@ -479,7 +484,7 @@ def editReminder(reminderId):
 
 		#Fetch reminder details of the reminder selected by user
 		cur = mysql.connection.cursor()
-		query = cur.execute( 'SELECT remindername, reminderdesc, priority, reminderstartdate, username, listid FROM reminders WHERE username = %s and reminderid = %s ', [username,reminderId])
+		query = cur.execute( 'SELECT remindername, reminderdesc, priority, reminderstartdate, flaged, username, listid FROM reminders WHERE username = %s and reminderid = %s ', [username,reminderId])
 		print(query, file=sys.stderr)
 		results = cur.fetchone()
 		print(results, file=sys.stderr)
@@ -498,10 +503,11 @@ def editReminder(reminderId):
 		query_reminderdesc = results["reminderdesc"]
 		query_priority = results["priority"]
 		query_reminderstartdate = results["reminderstartdate"]
+		flagged = results["flaged"]
 		listName = list_dict[results["listid"]]
-
+		
 		print("Reminder results from DB:", file=sys.stderr)
-		print(query_remindername, query_reminderdesc, query_priority, query_reminderstartdate, listName, file=sys.stderr)
+		print(query_remindername, query_reminderdesc, query_priority, query_reminderstartdate, flagged, listName, file=sys.stderr)
 		
 		form = edit_Reminder(request.form)
 		
@@ -515,6 +521,12 @@ def editReminder(reminderId):
 			form.reminderStartDate.raw_data = [str(query_reminderstartdate)]
 			form.reminderStartDate.process_data(query_reminderstartdate)
 
+			#checkbox
+			if flagged == 1:
+				form.flag.data = True
+			else:
+				form.flag.data = False
+
 			return render_template("edit_reminder.html", form=form)
 		
 		elif request.method == 'POST':
@@ -523,20 +535,21 @@ def editReminder(reminderId):
 			rem_desc = form.reminderMessage.data 
 			rem_priority = form.priority.data
 			rem_list = form.list.data
+			rem_flagged = form.flag.data
 			#rem_startdate = form.reminderStartDate.data
 			rem_startdate = request.form['reminderStartDate']
 
 			print(f'Reminder details passed to Reminder service for edit:',file=sys.stderr)
-			print(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, username, reminderId, file=sys.stderr)
+			print(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, rem_flagged, username, reminderId, file=sys.stderr)
 
-			response = ReminderService.editreminder(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, username, reminderId)
+			response = ReminderService.editreminder(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, rem_flagged, username, reminderId)
 			print(f'Edit reminder call response: {response}', file=sys.stderr)
 
 			if response:
 				content = json.loads(response)
 
 				if content['Success'] == 'True':
-					flash(f'Reminder {rem_name} was sucessfuly updated.', 'success')
+					flash(f'Reminder {rem_name} was sucessfuly updated.', 'info')
 					return redirect(url_for('main_app', username = session['username'])) 
 				else:
 					errorcode = content['errorcode']

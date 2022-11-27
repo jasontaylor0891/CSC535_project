@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
   <div class="text-white">
     <a class="button" href = "{{url_for('userProfile')}}">View My Profile</a>
 	  <h1 style="font-family: Georgia, serif;">Main Page for reminder application</h1>
@@ -55,9 +56,15 @@
                    <td>{{item['reminderdesc']}}</td>
                    <td>{{item['priority']}}</td>
                    <td>{{item['reminderstartdate']}}</td>
-                   <td>{{item['flaged']}}</td>
+
+                   {% if item['flaged'] == 1 %}
+                     <td> <i class="icon-flag" style="color: red"></i> </td>
+                   {% else %}
+                     <td> <i class="icon-flag" style="color: grey"></i> </td>
+                   {% endif%}
+
                    <td>{{item['listname']}}</td>
-                   <td> <button class="btn-success">EDIT</button> </td>
+                   <td> <a href="{{url_for('editReminder', reminderId = item.reminderid)}}" class="btn-success" >EDIT</a> </td>
                    <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid)}}" class="btn-danger" >DELETE</a> </td>
                </tr>
                {% endfor %}

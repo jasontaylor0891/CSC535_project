@@ -57,12 +57,11 @@ class ReminderService:
         return json.dumps({'Auth': 'True', 'data':  data}, default=str)
         
 
-    def createreminder(rname, rmessage, rstartdate, priority, rlist, username):
+    def createreminder(rname, rmessage, rstartdate, priority, rlist, username, flag):
         #reminders
         print(f'Create Reminder {rname}', file=sys.stderr)
-        
-            
-        
+        print(f"Flagged? {flag}",file=sys.stderr)
+
         try:
 
             cur = mysql.connection.cursor()
@@ -70,13 +69,18 @@ class ReminderService:
             if results>0:
                 data = cur.fetchone()
                 listid = str(data['listid'])
-                print(f'Output {listid}', file=sys.stderr)
+                print(f'Output listid {listid}', file=sys.stderr)
 
-            sql = ("INSERT INTO reminders (remindername, reminderdesc, priority, reminderstartdate, username, listid) "
-            "VALUES('" +rname+ "', '" +rmessage+ "', '" +priority+ "', '" +rstartdate+ "', '" +username+ "', " +listid+ ")")
+           # sql = ("INSERT INTO reminders (remindername, reminderdesc, priority, reminderstartdate, username, listid) "
+           # "VALUES('" + rname + "', '" + rmessage + "', '" + priority + "', '" + rstartdate + "', '" + username + "', " + listid + ")")
 
-            print(f'SQL Output {sql}', file=sys.stderr)
-            results = cur.execute(sql)
+            sql = "INSERT INTO reminders (remindername, reminderdesc, priority, reminderstartdate, flaged, username, listid) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            record = (rname, rmessage, priority, rstartdate, flag, username, listid)
+
+            print(f'SQL: {sql}', file=sys.stderr)
+            print(f'Record: {record}', file=sys.stderr)
+
+            results = cur.execute(sql, record)
             mysql.connection.commit()
             cur.close()
             return json.dumps({'Success': 'True'})
@@ -102,7 +106,7 @@ class ReminderService:
         cur = mysql.connection.cursor()
         #result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
         result = cur.execute(
-        'select reminders.*, list.listname from reminders LEFT JOIN list on reminders.username = list.username where reminders.username = %s and reminders.listid = list.listid and (reminders.reminderstartdate>=%s and reminders.reminderstartdate<=%s);',[username,filterStartDate1,filterEndDate1]
+        'select reminders.*, list.listname from reminders LEFT JOIN list on reminders.username = list.username where reminders.username = %s and reminders.listid = list.listid and (reminders.reminderstartdate>=%s and reminders.reminderstartdate<=%s) ORDER BY reminders.reminderstartdate;',[username,filterStartDate1,filterEndDate1]
         )
        
         if result == 0:
@@ -118,10 +122,10 @@ class ReminderService:
         return json.dumps({'Success': 'True', 'data':  data}, default=str)
 
     
-    def editreminder( rname, rdesc, rpriority, rlist, rstartdate, username, rId):
+    def editreminder( rname, rdesc, rpriority, rlist, rstartdate, rem_flagged, username, rId):
         print(f'Edit Reminder {rname}', file=sys.stderr)
         print(f'Reminder details received in Reminder service for edit:',file=sys.stderr)
-        print(rname, rdesc, rpriority, rlist, rstartdate, username, rId, file=sys.stderr)
+        print(rname, rdesc, rpriority, rlist, rstartdate, rem_flagged, username, rId, file=sys.stderr)
         
         try:
 
@@ -133,11 +137,16 @@ class ReminderService:
                 listid = str(data['listid'])
                 print(f'Fetch list output {listid}', file=sys.stderr)
 
-            sql = ("UPDATE reminders SET remindername='" + rname + "', reminderdesc='" + rdesc +"', priority='" + rpriority + "', "
-            "reminderstartdate='" + rstartdate + "', listid=" + listid + " where username='" + username + "' and reminderid=" + str(rId))
+            #sql = ("UPDATE reminders SET remindername='" + rname + "', reminderdesc='" + rdesc +"', priority='" + rpriority + "', "
+            #"reminderstartdate='" + rstartdate + "', listid=" + listid + " where username='" + username + "' and reminderid=" + str(rId))
+
+            sql="UPDATE reminders SET remindername=%s, reminderdesc=%s, priority=%s, reminderstartdate=%s, flaged=%s, listid=%s where username=%s and reminderid=%s"
+            record = (rname, rdesc, rpriority, rstartdate, rem_flagged, listid, username, str(rId))
 
             print(f'Edit reminder SQL:  {sql}', file=sys.stderr)
-            results = cur.execute(sql)
+            print(f'Edit reminder record:  {record}', file=sys.stderr)
+
+            results = cur.execute(sql,record)
             mysql.connection.commit()
             cur.close()
             return json.dumps({'Success': 'True'})
