@@ -7,7 +7,9 @@
    
   {% if success %}
     <h1 style="font-variant: small-caps;">View Reminders:</h1>
-    <a class="button" href = "{{url_for('mainWithFilter')}}">Click to Display Filter</a>
+    {% if not displayDeleteConfirmation %}
+      <a class="button" href = "{{url_for('mainWithFilter')}}">Click to Display Filter</a>
+    {% endif %}
     <div class="font-italic" style="background-color:#F0F8FF; color: black;">
      <!--<div class="list-group">
         <a href="#" class="list-group-item list-group-item-action">Reminder 1 <button class="btn-danger float-right">DELETE</button> <button class="btn-success float-right">EDIT</button> </a>
@@ -42,8 +44,18 @@
                    <td>{{item['flaged']}}</td>
                    <td>{{item['listname']}}</td>
                    <td><a href="{{url_for('editReminder', reminderId = item.reminderid)}}" class="btn-success" >EDIT</a> </td>
-                   <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid)}}" class="btn-danger" >DELETE</a> </td>
-               </tr>
+                   <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid, deleteReminderMessage = 'displayMessage')}}" class="btn-danger" >DELETE</a> </td>
+                    {% if displayDeleteConfirmation %}
+                        <div class="p-4 text-left" style="background-color:#f5e50d;">
+                          <h1 style="font-variant: small-caps;">Are you sure you want to delete this reminder?</h1>
+                            {% from "includes/_formhelpers.html" import render_field %}
+                                           
+                            <a type="submit" class="btn btn-primary p-2" href="{{url_for('deleteReminder', reminderId = item.reminderid, deleteReminderMessage = 'deleteTheReminder')}}">Yes!</a>
+                            <a href="{{url_for('main_app')}}" class="btn btn-secondary p-2">Cancel</a>
+                          </form> 
+                        </div>
+                    {% endif %}
+
                {% endfor %}
           </tbody> 
       </table>
