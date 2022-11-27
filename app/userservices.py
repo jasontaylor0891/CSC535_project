@@ -32,7 +32,8 @@ class UserService:
         stats = PasswordStats(password)
         checkpolicy = password_policy.test(password)
 
-        print(stats.strength())
+        logging.debug(f'Passwd Strength: {stats.strength()}')
+        #print(stats.strength())
         for i in checkpolicy:
             if str(i) == "Length(12)":
                 complex = False
@@ -103,7 +104,8 @@ class UserService:
             return json.dumps({'Auth': 'False','errorcode': '007'})
 
     def registration(fname, lname, username, email, password, mtype, phone):
-        print(f'Registration process has started', file=sys.stderr)
+        logging.info('Registration process has started')
+        #print(f'Registration process has started', file=sys.stderr)
 
         if not UserService.check_password_complexity(password):
             return json.dumps({'Success': 'False','errorcode': '008'})
@@ -126,7 +128,8 @@ class UserService:
                 "'" +email+"', '"+hash+"', '"+phone+"', "+str(profile)+", True, '"+accountcreated+"', False)"
                 )
 
-            print(f'SQL Output {sql}', file=sys.stderr)
+            #print(f'SQL Output {sql}', file=sys.stderr)
+            logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
 
@@ -134,21 +137,24 @@ class UserService:
             sql = ("INSERT INTO list (listname, listdesc, username) "
             "VALUES('Default', 'Default List', '" +username+ "')")
             
-            print(f'SQL Output {sql}', file=sys.stderr)
+            logging.debug(f'SQL Output {sql}')
+            #print(f'SQL Output {sql}', file=sys.stderr)
             results = cur.execute(sql)
             mysql.connection.commit()
 
             return json.dumps({'Success': 'True'})
 
         except Exception as e:
-            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            logging.error(f'{str(e)}')
+            #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '004'})
 
         
 
     def updatepassword(username, oldpassword, newpassword):
         
-        print(f'User {username} has started password change', file=sys.stderr)
+        logging.info(f'User {username} has started password change')
+        #print(f'User {username} has started password change', file=sys.stderr)
 
         if not UserService.check_password_complexity(newpassword):
             return json.dumps({'Updated': 'False','errorcode': '008'})
@@ -169,8 +175,8 @@ class UserService:
             return json.dumps({'Updated': 'False', 'errorcode': '003'})
     
     def updateUserInformation(fname, lname, new_username, email, mtype, phone, query_username):
-        print(f'Update user information process has started', file=sys.stderr)
-
+        #print(f'Update user information process has started', file=sys.stderr)
+        logging.info('Update user information process has started')
         if mtype == "Free":
             profile = 3
         else:
@@ -185,7 +191,8 @@ class UserService:
                     " WHERE username = '" + query_username + "'")
 
 
-            print(f'SQL Output {sql}', file=sys.stderr)
+            #print(f'SQL Output {sql}', file=sys.stderr)
+            logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
 
@@ -195,7 +202,8 @@ class UserService:
                     " WHERE username = '"+query_username + "'"
             )
             
-            print(f'SQL Output {sql}', file=sys.stderr)
+            #print(f'SQL Output {sql}', file=sys.stderr)
+            logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
 
@@ -205,14 +213,16 @@ class UserService:
                     " WHERE username = '"+query_username + "'"
             )
             
-            print(f'SQL Output {sql}', file=sys.stderr)
+            #print(f'SQL Output {sql}', file=sys.stderr)
+            logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
 
             return json.dumps({'Success': 'True'})
 
         except Exception as e:
-            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            logging.error(f'{str(e)}')
+            #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '004'})
 
     
