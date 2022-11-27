@@ -397,8 +397,8 @@ def deleteReminder(reminderId):
     			#return redirect(url_for('main_app'))
 
 class filterReminder(Form):
-	filterStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
-	filterEndDate = DateField('End Date (DD-MM-YYYY)', format='%d-%m-%Y')
+	filterStartDate = DateField('Start Date (MM-DD-YYYY)', format='%d-%m-%Y')
+	filterEndDate = DateField('End Date (MM-DD-YYYY)', format='%d-%m-%Y')
 
 #Route and Function for adminDashboard
 @app.route('/mainWithFilter', methods = ['GET', 'POST'])
