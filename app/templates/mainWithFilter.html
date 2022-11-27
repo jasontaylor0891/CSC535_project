@@ -1,19 +1,19 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
+<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
   <div class="text-white">
     <a class="button" href = "{{url_for('userProfile')}}">View My Profile</a>
 	  <h1 style="font-family: Georgia, serif;">Main Page for reminder application</h1>
 
     <div class="p-4 text-left" style="background-color:#023d16;">
-      <h1 style="font-variant: small-caps;">Filter Reminders by Date Range:</h1>
+      <h1 style="font-variant: small-caps;">Filter Remnders by Date Range:</h1>
         {% from "includes/_formhelpers.html" import render_field %}
       <form action="" method="POST">
         <div class="form-group p-2">
                 {{render_field(form.filterStartDate, class_="form-control")}}
               </div>
-              <div class="form-group" p-2>
+              <div class="form-group p-2" >
                 {{render_field(form.filterEndDate, class_="form-control")}}
               </div>
               
@@ -52,36 +52,19 @@
              
              <tr>
               
-               <th>Reminder Name</th>
-               <th>Reminder Desc</th>
-               <th>Priority</th>
-               <th>Start Date</th>
-               <th>Flagged</th>
-               <th>List Name</th>
-               <th></th>
-               <th></th>
-            </tr>
-          </thead>
-          <tbody>
-               {% for item in data %}
-               
-               <tr>
-                
-                   <td>{{item['remindername']}}</td>
-                   <td>{{item['reminderdesc']}}</td>
-                   <td>{{item['priority']}}</td>
-                   <td>{{item['reminderstartdate']}}</td>
-
-                   {% if item['flaged'] == 1 %}
+                 <td>{{item['remindername']}}</td>
+                 <td>{{item['reminderdesc']}}</td>
+                 <td>{{item['priority']}}</td>
+                 <td>{{item['reminderstartdate']}}</td>
+                 {% if item['flaged'] == 1 %}
                      <td> <i class="icon-flag" style="color: red"></i> </td>
                    {% else %}
                      <td> <i class="icon-flag" style="color: grey"></i> </td>
                    {% endif%}
-
-                   <td>{{item['listname']}}</td>
-                   <td> <a href="{{url_for('editReminder', reminderId = item.reminderid)}}" class="btn-success" >EDIT</a> </td>
-                   <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid)}}" class="btn-danger" >DELETE</a> </td>
-                   {% if displayDeleteConfirmation %}
+                 <td>{{item['listname']}}</td>
+                 <td><a href="{{url_for('editReminder', reminderId = item.reminderid)}}" class="btn-success" >EDIT</a> </td>
+                 <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid, deleteReminderMessage = 'displayMessage')}}" class="btn-danger" >DELETE</a> </td>
+                  {% if displayDeleteConfirmation %}
                       <div class="p-4 text-left" style="background-color:#f5e50d;">
                         <h1 style="font-variant: small-caps;">Are you sure you want to delete this reminder?</h1>
                           {% from "includes/_formhelpers.html" import render_field %}
@@ -91,10 +74,10 @@
                         </form> 
                       </div>
                   {% endif %}
-               </tr>
-               {% endfor %}
-          </tbody> 
-      </table>
+
+             {% endfor %}
+        </tbody> 
+    </table>
 
   </div>
   {% endif %}
