@@ -14,9 +14,8 @@ class ReminderService:
     def createlist(listname, listdesc, username):
 
         config = current_app.config
-        print(f'{config}', file=sys.stderr)
         
-        print(f'Create list process has started', file=sys.stdout)
+        logging.info('Create list process has started')
 
         try:
             
@@ -25,19 +24,22 @@ class ReminderService:
             sql = ("INSERT INTO list (listname, listdesc, username) "
             "VALUES('" +listname+ "', '" +listdesc+ "', '" +username+ "')")
 
-            print(f'SQL Output {sql}', file=sys.stderr)
+            #print(f'SQL Output {sql}', file=sys.stderr)
+            logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
 
             return json.dumps({'Success': 'True'})
 
         except Exception as e:
-            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            logging.error(f'{str(e)}')
+            #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '005'})
     
     def displayReminders():
         username = session['username']
-        print(f'Displaying reminders for user {username}', file=sys.stderr)
+        logging.info(f'Displaying reminders for user {username}')
+        #print(f'Displaying reminders for user {username}', file=sys.stderr)
 
         cur = mysql.connection.cursor()
         #result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
@@ -58,9 +60,11 @@ class ReminderService:
         
 
     def createreminder(rname, rmessage, rstartdate, priority, rlist, username, flag):
-        #reminders
-        print(f'Create Reminder {rname}', file=sys.stderr)
-        print(f"Flagged? {flag}",file=sys.stderr)
+        
+        logging.debug(f'Create Reminder {rname}')
+        logging.debug(f'Flagged? {flag}')
+        #print(f'Create Reminder {rname}', file=sys.stderr)
+        #print(f"Flagged? {flag}",file=sys.stderr)
 
         try:
 
@@ -69,7 +73,8 @@ class ReminderService:
             if results>0:
                 data = cur.fetchone()
                 listid = str(data['listid'])
-                print(f'Output listid {listid}', file=sys.stderr)
+                logging.debug(f'Output listid {listid}')
+                #print(f'Output listid {listid}', file=sys.stderr)
 
            # sql = ("INSERT INTO reminders (remindername, reminderdesc, priority, reminderstartdate, username, listid) "
            # "VALUES('" + rname + "', '" + rmessage + "', '" + priority + "', '" + rstartdate + "', '" + username + "', " + listid + ")")
@@ -77,8 +82,10 @@ class ReminderService:
             sql = "INSERT INTO reminders (remindername, reminderdesc, priority, reminderstartdate, flaged, username, listid) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             record = (rname, rmessage, priority, rstartdate, flag, username, listid)
 
-            print(f'SQL: {sql}', file=sys.stderr)
-            print(f'Record: {record}', file=sys.stderr)
+            #print(f'SQL: {sql}', file=sys.stderr)
+            #print(f'Record: {record}', file=sys.stderr)
+            logging.debug(f'SQL: {sql}')
+            logging.debug(f'Record: {record}')
 
             results = cur.execute(sql, record)
             mysql.connection.commit()
@@ -86,14 +93,16 @@ class ReminderService:
             return json.dumps({'Success': 'True'})
 
         except Exception as e:
-            print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
+            logging.error(f'{str(e)}')
+            #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '006'})
 
     def deleteReminder(reminderId):
 
         cur = mysql.connection.cursor()
         sql = ('DELETE FROM reminders WHERE reminderid =' + str(reminderId))
-        print(f'SQL Output {sql}', file=sys.stderr)
+        logging.debug(f'SQL: {sql}')
+        #print(f'SQL Output {sql}', file=sys.stderr)
         results = cur.execute(sql)
         mysql.connection.commit()
 
@@ -101,7 +110,8 @@ class ReminderService:
 
     def filterTheReminder(filterStartDate1,filterEndDate1):
         username = session['username']
-        print(f'Displaying reminders for user {username}', file=sys.stderr)
+        logging.info(f'Displaying reminders for user {username}')
+        #print(f'Displaying reminders for user {username}', file=sys.stderr)
 
         cur = mysql.connection.cursor()
         #result = cur.execute('SELECT * FROM reminders WHERE username = %s', [username])
@@ -112,20 +122,26 @@ class ReminderService:
         if result == 0:
             cur.close()
             data = cur.fetchall()
-            print(f'Did not find any reminders!', file=sys.stderr)
+            logging.info(f'Did not find any reminders!')
+            #print(f'Did not find any reminders!', file=sys.stderr)
             return json.dumps({'Success': 'False','data': data, 'errorcode': '1'})
 
         if result>0:
             data = cur.fetchall()
-            print(f'Found some reminders in date range!', file=sys.stderr)
+            logging.info(f'Found some reminders in date range!')
+            #print(f'Found some reminders in date range!', file=sys.stderr)
             cur.close()
         return json.dumps({'Success': 'True', 'data':  data}, default=str)
 
     
     def editreminder( rname, rdesc, rpriority, rlist, rstartdate, rem_flagged, username, rId):
-        print(f'Edit Reminder {rname}', file=sys.stderr)
-        print(f'Reminder details received in Reminder service for edit:',file=sys.stderr)
-        print(rname, rdesc, rpriority, rlist, rstartdate, rem_flagged, username, rId, file=sys.stderr)
+        #print(f'Edit Reminder {rname}', file=sys.stderr)
+        #print(f'Reminder details received in Reminder service for edit:',file=sys.stderr)
+        #print(rname, rdesc, rpriority, rlist, rstartdate, rem_flagged, username, rId, file=sys.stderr)
+
+        logging.debug(f'Edit Reminder {rname}')
+        logging.debug(f'Reminder details received in Reminder service for edit:')
+        logging.debug(f'{rname}, {rdesc}, {rpriority}, {rlist}, {rstartdate}, {rem_flagged}, {username}, {rId}')
         
         try:
 
@@ -135,7 +151,8 @@ class ReminderService:
             if results>0:
                 data = cur.fetchone()
                 listid = str(data['listid'])
-                print(f'Fetch list output {listid}', file=sys.stderr)
+                #print(f'Fetch list output {listid}', file=sys.stderr)
+                logging.debug(f'Fetch list output {listid}')
 
             #sql = ("UPDATE reminders SET remindername='" + rname + "', reminderdesc='" + rdesc +"', priority='" + rpriority + "', "
             #"reminderstartdate='" + rstartdate + "', listid=" + listid + " where username='" + username + "' and reminderid=" + str(rId))
@@ -143,8 +160,10 @@ class ReminderService:
             sql="UPDATE reminders SET remindername=%s, reminderdesc=%s, priority=%s, reminderstartdate=%s, flaged=%s, listid=%s where username=%s and reminderid=%s"
             record = (rname, rdesc, rpriority, rstartdate, rem_flagged, listid, username, str(rId))
 
-            print(f'Edit reminder SQL:  {sql}', file=sys.stderr)
-            print(f'Edit reminder record:  {record}', file=sys.stderr)
+            #print(f'Edit reminder SQL:  {sql}', file=sys.stderr)
+            #print(f'Edit reminder record:  {record}', file=sys.stderr)
+            logging.debug(f'Edit reminder SQL:  {sql}')
+            logging.debug(f'Edit reminder record:  {record}')
 
             results = cur.execute(sql,record)
             mysql.connection.commit()
@@ -152,12 +171,14 @@ class ReminderService:
             return json.dumps({'Success': 'True'})
 
         except Exception as e:
-            print(f'{datetime.datetime.now()} Error in edit reminder: {str(e)}', file=sys.stderr)
+            logging.error(f'{str(e)}')
+            #print(f'{datetime.datetime.now()} Error in edit reminder: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '009'})
         
     def displayReminderToDelete(reminderId):
         username = session['username']
-        print(f'Displaying reminders for user {username}', file=sys.stderr)
+        logging.info(f'Displaying reminders for user {username}')
+        #print(f'Displaying reminders for user {username}', file=sys.stderr)
 
         cur = mysql.connection.cursor()
         result = cur.execute(
