@@ -7,7 +7,7 @@
 	  <h1 style="font-family: Georgia, serif;">Main Page for reminder application</h1>
 
     <div class="p-4 text-left" style="background-color:#023d16;">
-      <h1 style="font-variant: small-caps;">Filter Remnders by Date Range:</h1>
+      <h1 style="font-variant: small-caps;">Filter Reminders by Date Range:</h1>
         {% from "includes/_formhelpers.html" import render_field %}
       <form action="" method="POST">
         <div class="form-group p-2">
@@ -33,9 +33,24 @@
         <a href="#" class="list-group-item list-group-item-action">Reminder 4 <button class="btn-danger float-right">DELETE</button> <button class="btn-success float-right">EDIT</button> </a>
       </div> -->
       
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            
+             <th>Reminder Name</th>
+             <th>Reminder Desc</th>
+             <th>Priority</th>
+             <th>Start Date</th>
+             <th>Flagged</th>
+             <th>List Name</th>
+             <th></th>
+             <th></th>
+          </tr>
+        </thead>
+        <tbody>
+             {% for item in data %}
+             
+             <tr>
               
                <th>Reminder Name</th>
                <th>Reminder Desc</th>
@@ -66,12 +81,22 @@
                    <td>{{item['listname']}}</td>
                    <td> <a href="{{url_for('editReminder', reminderId = item.reminderid)}}" class="btn-success" >EDIT</a> </td>
                    <td> <a href="{{url_for('deleteReminder', reminderId = item.reminderid)}}" class="btn-danger" >DELETE</a> </td>
+                   {% if displayDeleteConfirmation %}
+                      <div class="p-4 text-left" style="background-color:#f5e50d;">
+                        <h1 style="font-variant: small-caps;">Are you sure you want to delete this reminder?</h1>
+                          {% from "includes/_formhelpers.html" import render_field %}
+                                         
+                          <a type="submit" class="btn btn-primary p-2" href="{{url_for('deleteReminder', reminderId = item.reminderid, deleteReminderMessage = 'deleteTheReminder')}}">Yes!</a>
+                          <a href="{{url_for('main_app')}}" class="btn btn-secondary p-2">Cancel</a>
+                        </form> 
+                      </div>
+                  {% endif %}
                </tr>
                {% endfor %}
           </tbody> 
       </table>
 
-    </div>
-    {% endif %}
   </div>
+  {% endif %}
+</div>
 {% endblock %}

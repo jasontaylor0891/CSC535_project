@@ -380,29 +380,37 @@ def userProfile():
 	except Exception as e:
 		return(str(e))
 
-@app.route('/deleteReminder/<int:reminderId>', methods=['GET', 'POST'])
+@app.route('/deleteReminder/<int:reminderId>/<deleteReminderMessage>', methods=['GET', 'POST'])
 @is_logged_in
-def deleteReminder(reminderId):
+def deleteReminder(reminderId, deleteReminderMessage):
 	print('MADE IT INSIDE DELETE REMINDER FUNCTION', file=sys.stderr)
 	print(reminderId, file=sys.stderr)
-	#Delete the reminder
-	delete_Reminder = ReminderService.deleteReminder(reminderId)
-	if delete_Reminder:
-		content = json.loads(delete_Reminder)
-		if content['Success'] == 'True':
-				flash(f'The reminder was sucessfuly deleted!', 'info')
-				return redirect(url_for('main_app', username = session['username']))
-		else:
-			errorcode = content['errorcode']
-			if errorcode == '006':
-				error = 'There was an issue deleting your reminder.'
-				return render_template("main_app.html")
-						
-    			#return redirect(url_for('main_app'))
+	if deleteReminderMessage == 'displayMessage':
+		responce = ReminderService.displayReminderToDelete(reminderId)
+		content = json.loads(responce)
+		print(f'displayMessage', file=sys.stderr)
+		print(content, file=sys.stderr)
+		return render_template("main.html", data=content['data'], success="true", displayDeleteConfirmation="true")
+	elif deleteReminderMessage == 'deleteTheReminder':
+		print(f'deleteReminder', file=sys.stderr)
+		#Delete the reminder
+		delete_Reminder = ReminderService.deleteReminder(reminderId)
+		if delete_Reminder:
+			content = json.loads(delete_Reminder)
+			if content['Success'] == 'True':
+					flash(f'The reminder was sucessfuly deleted!', 'info')
+					return redirect(url_for('main_app', username = session['username']))
+			else:
+				errorcode = content['errorcode']
+				if errorcode == '006':
+					error = 'There was an issue deleting your reminder.'
+					return render_template("main_app.html")
+							
+					#return redirect(url_for('main_app'))
 
 class filterReminder(Form):
-	filterStartDate = DateField('Start Date (DD-MM-YYYY)', format='%d-%m-%Y')
-	filterEndDate = DateField('End Date (DD-MM-YYYY)', format='%d-%m-%Y')
+	filterStartDate = DateField('Start Date (MM-DD-YYYY)', format='%d-%m-%Y')
+	filterEndDate = DateField('End Date (MM-DD-YYYY)', format='%d-%m-%Y')
 
 #Route and Function for adminDashboard
 @app.route('/mainWithFilter', methods = ['GET', 'POST'])
