@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'playout.html' %}
 
 {% block body %}
 <div class="jumbotron p-4 text-left" style="background-color:#F0F8FF;">
@@ -25,7 +25,7 @@
             {{render_field(form.mtype, class_="form-control")}}
           </div>
 		<button type="submit" class="btn btn-primary">Update Information</button>
-    <a href="{{url_for('main_app', username = session.username)}}" class="btn btn-secondary p-2">Cancel</a>
+    <a href="{{url_for('profile', username = session.username)}}" class="btn btn-secondary p-2">Cancel</a>
 	</form> 
 	</div>
 {% endblock %}
