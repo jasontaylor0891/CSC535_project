@@ -54,3 +54,8 @@ VALUES
 ('Default', 'Default list', 'paid'),
 ('Work', 'Work list', 'paid'),
 ('Default', 'Default list', 'free');
+
+CREATE EVENT DeleteReminder
+    ON SCHEDULE EVERY 6 HOUR
+    DO
+      DELETE FROM reminders WHERE reminderstartdate < NOW();
