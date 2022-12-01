@@ -8,6 +8,7 @@ from passlib.hash import sha256_crypt
 from flask_wtf import FlaskForm
 from wtforms import Form, StringField, BooleanField, TextAreaField, PasswordField, validators, RadioField, SelectField, IntegerField, SubmitField, DateField, widgets, SelectMultipleField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
+from sqlescapy import sqlescape
 
 from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, CreateProfile, updateUserProfile
 from userservices import UserService
@@ -89,8 +90,8 @@ def login():
 	# 		form.username.data = username
 
 	if request.method == 'POST' and form.validate():
-		username = request.form['username']
-		password_candidate = request.form['password']
+		username = sqlescape(request.form['username'])
+		password_candidate = sqlescape(request.form['password'])
 
 		responce = UserService.login(username, password_candidate)
 		if responce:
@@ -142,8 +143,8 @@ def update_password(username):
 	
 	form = ChangePasswordForm(request.form)
 	if request.method == 'POST' and form.validate():
-		new = form.new_password.data
-		entered = form.old_password.data
+		new = sqlescape(form.new_password.data)
+		entered = sqlescape(form.old_password.data)
 
 		responce = UserService.updatepassword(username, entered, new)
 		logging.debug(f'Updated: {responce}')
@@ -181,13 +182,13 @@ def registration():
 
 		form = RegistrationForm(request.form)
 		if request.method == 'POST':
-			fname = form.fname.data
-			lname = form.lname.data
-			username = form.username.data
-			email = form.email.data
-			password = form.password.data
+			fname = sqlescape(form.fname.data)
+			lname = sqlescape(form.lname.data)
+			username = sqlescape(form.username.data)
+			email = sqlescape(form.email.data)
+			password = sqlescape(form.password.data)
 			mtype = form.mtype.data
-			phone = form.phone.data
+			phone = sqlescape(form.phone.data)
 				
 			responce = UserService.registration(fname, lname, username, email, password, mtype, phone)
 			logging.debug(f'Call Responce: {responce}')
@@ -250,9 +251,9 @@ def create_reminder():
 		form = CreateReminder(request.form)
 		
 		if request.method == 'POST':
-			remindername = form.ReminderName.data
-			remindermessage = form.ReminderMessage.data
-			reminderstartdate = request.form['ReminderStartDate']
+			remindername = sqlescape(form.ReminderName.data)
+			remindermessage = sqlescape(form.ReminderMessage.data)
+			reminderstartdate = sqlescape(request.form['ReminderStartDate'])
 			#reminderstartdate = form.ReminderStartDate.data
 			priority = form.priority.data
 			reminderlist = form.list.data
@@ -285,8 +286,8 @@ def createlist():
 	try:
 		form = CreateList(request.form)
 		if request.method == 'POST':
-			listname = form.listname.data
-			listdesc = form.listdesc.data
+			listname = sqlescape(form.listname.data)
+			listdesc = sqlescape(form.listdesc.data)
 			username = session['username']
 			responce = ReminderService.createlist(listname, listdesc, username)
 			logging.debug(f'Call Responce: {responce}')
@@ -369,11 +370,11 @@ def userProfile():
 			return render_template("userProfile.html", form=form)
 
 		elif request.method == 'POST':
-			fname = form.fname.data
-			lname = form.lname.data
-			new_username = form.username.data
-			email = form.email.data
-			phone = form.phone.data
+			fname = sqlescape(form.fname.data)
+			lname = sqlescape(form.lname.data)
+			new_username = sqlescape(form.username.data)
+			email = sqlescape(form.email.data)
+			phone = sqlescape(form.phone.data)
 			mtype = form.mtype.data
 			
 			response = UserService.updateUserInformation(fname, lname, new_username, email, mtype, phone, query_username)
@@ -570,8 +571,8 @@ def editReminder(reminderId):
 		elif request.method == 'POST':
 			#print(f"POST request" , file=sys.stderr)
 			logging.debug('POST request')
-			rem_name = form.reminderName.data
-			rem_desc = form.reminderMessage.data 
+			rem_name = sqlescape(form.reminderName.data)
+			rem_desc = sqlescape(form.reminderMessage.data) 
 			rem_priority = form.priority.data
 			rem_list = form.list.data
 			rem_flagged = form.flag.data
