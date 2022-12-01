@@ -81,6 +81,7 @@ def index():
 
 #Login route.  This function logs the user into the application and determins their account profile
 #and redirect the user to their appropriate dashboard.
+
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
 	
@@ -112,6 +113,12 @@ def login():
 				return render_template('login.html', form = form, error = error)
 
 	return render_template('login.html', form = form)
+
+
+#route to userprofile display
+#@app.route('/main_app', methods = ['GET', 'POST'])
+#def user_display():
+    #return render_template('profile.html', data=data)
 
 #Route and Function for adminDashboard
 @app.route('/main_app', methods = ['GET', 'POST'])
@@ -384,8 +391,9 @@ def userProfile():
 					if errorcode == '004':
 						error = 'Errori in updating user information.'
 						return render_template("userProfile.html", form=form, error=error)
-
+		
 		return render_template("userProfile.html", form=form)
+		
 	
 	except Exception as e:
 		return(str(e))

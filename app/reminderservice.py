@@ -57,6 +57,22 @@ class ReminderService:
             cur.close()
         
         return json.dumps({'Auth': 'True', 'data':  data}, default=str)
+#displaying profile page
+    def displayUserdata():
+        username = session['username']
+        cur = mysql.connection.cursor()
+        result = cur.execute('select * from users;',[username])
+       
+        if result == 0:
+            cur.close()
+            #print(f'User {username} not found. 401 Not Authorized', file=sys.stderr)
+            return json.dumps({'Auth': 'False','errorcode': '002'})
+
+        if result>0:
+            data = cur.fetchall()
+            cur.close()
+        
+        return json.dumps({'Auth': 'True', 'data':  data}, default=str)
         
 
     def createreminder(rname, rmessage, rstartdate, priority, rlist, username, flag):
