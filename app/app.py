@@ -148,7 +148,7 @@ def update_password(username):
 
 		responce = UserService.updatepassword(username, entered, new)
 		logging.debug(f'Updated: {responce}')
-		#print(f'Updated: {responce}', file=sys.stderr)
+		
 		if responce:
 			content = json.loads(responce)
 			
@@ -192,7 +192,7 @@ def registration():
 				
 			responce = UserService.registration(fname, lname, username, email, password, mtype, phone)
 			logging.debug(f'Call Responce: {responce}')
-			#print(f'Call Responce: {responce}', file=sys.stderr)
+			
 			if responce:
 				content = json.loads(responce)
 				if content['Success'] == 'True':
@@ -278,7 +278,7 @@ def create_reminder():
 
 			responce = ReminderService.createreminder(remindername, remindermessage, reminderstartdate, priority, reminderlist, username, flag)
 			logging.debug(f'Call Responce: {responce}')
-			#print(f'Call Responce: {responce}', file=sys.stderr)
+			
 			if responce:
 				content = json.loads(responce)
 				if content['Success'] == 'True':
@@ -307,7 +307,7 @@ def createlist():
 			username = session['username']
 			responce = ReminderService.createlist(listname, listdesc, username)
 			logging.debug(f'Call Responce: {responce}')
-			#print(f'Call Responce: {responce}', file=sys.stderr)
+			
 			if responce:
 				content = json.loads(responce)
 				if content['Success'] == 'True':
@@ -349,16 +349,14 @@ def profile():
 def userProfile():
 	
 	try:
-		#print('Inside the userProfile try function', file=sys.stderr)
+		
 		logging.info('Inside the userProfile try function')
 		username = session['username']
 
 		cur = mysql.connection.cursor()
 		query = cur.execute('SELECT fname, lname, username, email, phone FROM users WHERE username = %s', [username])
 		logging.debug(f'{query}')
-		#print(query, file=sys.stderr)
 		results = cur.fetchone()
-		#print(results, file=sys.stderr)
 		logging.debug(f'{results}')
 		#results.keys()
 
@@ -370,9 +368,6 @@ def userProfile():
 
 		logging.debug(f'{query_fname}, {query_lname}, {query_username}, {query_email}, {query_phone}')
 		logging.debug('THESE ARE THE RESULTS')
-
-		#print(query_fname, query_lname, query_username, query_email, query_phone, file=sys.stderr)
-		#print("THESE ARE THE RESULTS", file=sys.stderr)
 		
 		form = updateUserProfile(request.form)
 		
@@ -395,7 +390,7 @@ def userProfile():
 			
 			response = UserService.updateUserInformation(fname, lname, new_username, email, mtype, phone, query_username)
 			logging.debug(f'Call Responce: {response}')
-			#print(f'Call Responce: {response}', file=sys.stderr)
+			
 			if response:
 				content = json.loads(response)
 				if content['Success'] == 'True':
@@ -417,18 +412,15 @@ def userProfile():
 def deleteReminder(reminderId, deleteReminderMessage):
 	logging.debug('MADE IT INSIDE DELETE REMINDER FUNCTION')
 	logging.debug(f'{reminderId}')
-	#print('MADE IT INSIDE DELETE REMINDER FUNCTION', file=sys.stderr)
-	#print(reminderId, file=sys.stderr)
+	
 	if deleteReminderMessage == 'displayMessage':
 		responce = ReminderService.displayReminderToDelete(reminderId)
 		content = json.loads(responce)
 		logging.debug(f'Display Message: {content}')
-		#print(f'displayMessage', file=sys.stderr)
-		#print(content, file=sys.stderr)
+		
 		return render_template("main.html", data=content['data'], success="true", displayDeleteConfirmation="true")
 	elif deleteReminderMessage == 'deleteTheReminder':
-		#print(f'deleteReminder', file=sys.stderr)
-		#Delete the reminder
+		
 		delete_Reminder = ReminderService.deleteReminder(reminderId)
 		if delete_Reminder:
 			content = json.loads(delete_Reminder)
@@ -463,19 +455,18 @@ def mainWithFilter():
 				filterEndDate1 = request.form['filterEndDate']
 				logging.debug(f'FStartdate1: {filterStartDate1}')
 				logging.debug(f'FEnddate1: {filterEndDate1}')
-				#print(filterStartDate1, file=sys.stderr)
-				#print(filterEndDate1, file=sys.stderr)
+				
 				if not filterStartDate1 or not filterEndDate1:
 					flash('You need to enter BOTH a start and end date! Still displaying all reminders!', 'danger')
 					return redirect(url_for('mainWithFilter'))
 				elif filterStartDate1 > filterEndDate1:
 					flash('Start date must be before end date! Still dislaying all reminders!', 'danger')
 					return redirect(url_for('mainWithFilter'))
-				#print("PAST THE NULL CHECK!", file=sys.stderr)
+				
 				logging.debug('PAST THE NULL CHECK!')
 				responseFilter = ReminderService.filterTheReminder(filterStartDate1,filterEndDate1)
 				newContent = json.loads(responseFilter)
-				#print(newContent, file=sys.stderr)
+				
 				logging.debug(f'New Content: {newContent}')
 				if newContent['Success'] == 'True':
 					return render_template("mainWithFilter.html", data=newContent['data'], success="true", form = form)
@@ -541,8 +532,6 @@ def editReminder(reminderId):
 	try:
 		logging.info(f'Inside editReminder function')
 		logging.debug(f'Reminder ID: {reminderId}')
-		#print('Inside editReminder function', file=sys.stderr)
-		#print(f'Reminder ID: {reminderId}', file=sys.stderr)
 
 		username = session['username']
 		list_for_edit.clear()
@@ -550,12 +539,11 @@ def editReminder(reminderId):
 		#Fetch reminder details of the reminder selected by user
 		cur = mysql.connection.cursor()
 		query = cur.execute( 'SELECT remindername, reminderdesc, priority, reminderstartdate, flaged, username, listid FROM reminders WHERE username = %s and reminderid = %s ', [username,reminderId])
-		#print(query, file=sys.stderr)
+		
 		logging.debug(f'SQL {query}')
 		results = cur.fetchone()
 		logging.debug(f'Results: {results}')
-		#print(results, file=sys.stderr)
-
+		
 		#Fetch list details of the user
 		list_dict = {}
 		q = cur.execute('SELECT listid, listname FROM list WHERE username = %s', [username])
@@ -564,7 +552,6 @@ def editReminder(reminderId):
 			list_for_edit.append(b[i]['listname'])
 			list_dict[b[i]['listid']] = b[i]['listname']
 		
-		#print(list_dict,file=sys.stderr)
 		logging.debug(f'List: {list_dict}')
 
 		query_remindername = results["remindername"]
@@ -574,15 +561,13 @@ def editReminder(reminderId):
 		flagged = results["flaged"]
 		listName = list_dict[results["listid"]]
 		
-		#print("Reminder results from DB:", file=sys.stderr)
-		#print(query_remindername, query_reminderdesc, query_priority, query_reminderstartdate, flagged, listName, file=sys.stderr)
 		logging.debug('Reminder results from DB:')
 		logging.debug(f'{query_remindername}, {query_reminderdesc}, {query_priority}, {query_reminderstartdate}, {flagged}, {listName}')
 		
 		form = edit_Reminder(request.form)
 		
 		if request.method == 'GET':
-			#print(f"GET request" , file=sys.stderr)
+			
 			logging.debug('GET request')
 			form.reminderName.data = query_remindername
 			form.reminderMessage.data = query_reminderdesc
@@ -601,7 +586,7 @@ def editReminder(reminderId):
 			return render_template("edit_reminder.html", form=form)
 		
 		elif request.method == 'POST' and form.validate():
-			#print(f"POST request" , file=sys.stderr)
+			
 			logging.debug('POST request')
 			rem_name = sqlescape(form.reminderName.data)
 			rem_desc = sqlescape(form.reminderMessage.data) 
@@ -611,14 +596,11 @@ def editReminder(reminderId):
 			#rem_startdate = form.reminderStartDate.data
 			rem_startdate = request.form['reminderStartDate']
 
-			#print(f'Reminder details passed to Reminder service for edit:',file=sys.stderr)
-			#print(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, rem_flagged, username, reminderId, file=sys.stderr)
 			logging.debug(f'Reminder details passed to Reminder service for edit:')
 			logging.debug(f'{rem_name}, {rem_desc}, {rem_priority}, {rem_list}, {rem_startdate}, {rem_flagged}, {username}, {reminderId}')
 
 			response = ReminderService.editreminder(rem_name, rem_desc, rem_priority, rem_list, rem_startdate, rem_flagged, username, reminderId)
 			logging.debug(f'Edit reminder call response: {response}')
-			#print(f'Edit reminder call response: {response}', file=sys.stderr)
 
 			if response:
 				content = json.loads(response)
