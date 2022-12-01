@@ -311,13 +311,17 @@ def createlist():
 @app.route('/profile/', methods=["GET","POST"])
 @is_logged_in
 def profile():
+
+	username = session['username']
 	try:
-		form = CreateProfile(request.form)
-		#if request.method == 'POST':
+		responce = UserService.display_user(username)
+		if responce:
+			content = json.loads(responce)
 			
+			if content['Success'] == 'True':
+				return render_template("profile.html", data=content['data'], success="true")
 
-
-		return render_template("profile.html", form=form)
+		#return render_template("profile.html")
 	except Exception as e:
 		return(str(e))
 
