@@ -14,7 +14,7 @@ from forms import ChangePasswordForm, RegistrationForm, LoginForm, CreateList, C
 from userservices import UserService
 from reminderservice import ReminderService
 from functools import wraps
-from datetime import datetime
+from datetime import datetime, date
 from utility import *
 
 
@@ -227,16 +227,32 @@ class CreateReminder(Form):
 
 	ReminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
 	ReminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
-	ReminderStartDate = DateField('Start Date (MM/DD/YYYY)', format='%d-%m-%Y')
+	ReminderStartDate = DateField('Start Date (MM/DD/YYYY)', [DataRequired()], format='%Y-%m-%d')
 	priority = SelectField('Priority:', choices = priority)
 	list = SelectField('List:', choices = list)
 	flag = BooleanField('Flag this reminder?', default=False)
+
+	def validate_ReminderStartDate(form, field):
+		todaysdate = date.today()
+		logging.debug(f"Todays Date: {todaysdate}")
+
+		rdate = datetime.strptime(field.raw_data[0], '%Y-%m-%d').date()
+		logging.debug(f"Input Date: {rdate}")
+
+		if rdate < todaysdate:
+			logging.info(f"Validation Result: False - Input Date is past date")
+			field.errors.append("Start Date cannot be in the past!")
+			return False
+		else:
+			logging.info(f"Validation Result: True - Input Date is not past date")
+			return True
 	
 
 #Route and function for the create reminder page
 @app.route('/create_reminder/', methods=["GET","POST"])
 @is_logged_in
 def create_reminder():
+	logging.info("In create reminder")
 	try:
 		username = session['username']
 		list.clear()
@@ -250,7 +266,7 @@ def create_reminder():
 
 		form = CreateReminder(request.form)
 		
-		if request.method == 'POST':
+		if request.method == 'POST' and form.validate():
 			remindername = sqlescape(form.ReminderName.data)
 			remindermessage = sqlescape(form.ReminderMessage.data)
 			reminderstartdate = sqlescape(request.form['ReminderStartDate'])
@@ -497,10 +513,25 @@ class edit_Reminder(Form):
 
 	reminderName = StringField('Reminder Name:', [validators.Length(min=1, max=50)])
 	reminderMessage = StringField('Message:', [validators.Length(min=1, max=5000)])
-	reminderStartDate = DateField('Start Date (MM/DD/YYYY)', format='%d-%m-%Y')
+	reminderStartDate = DateField('Start Date (MM/DD/YYYY)', [DataRequired()], format='%Y-%m-%d')
 	priority = SelectField('Priority:', choices = priority)
 	list = SelectField('List:', choices = list_for_edit)
 	flag = BooleanField('Flag this reminder?', default=False)
+
+	def validate_reminderStartDate(form, field):
+		todaysdate = date.today()
+		logging.debug(f"Todays Date: {todaysdate}")
+
+		rdate = datetime.strptime(field.raw_data[0], '%Y-%m-%d').date()
+		logging.debug(f"Input Date: {rdate}")
+
+		if rdate < todaysdate:
+			logging.info(f"Validation Result: False - Input Date is past date")
+			field.errors.append("Start Date cannot be in the past!")
+			return False
+		else:
+			logging.info(f"Validation Result: True - Input Date is not past date")
+			return True
 
 #Route and function for edit reminder
 @app.route('/editReminder/<int:reminderId>', methods=["GET","POST"])
@@ -569,7 +600,7 @@ def editReminder(reminderId):
 
 			return render_template("edit_reminder.html", form=form)
 		
-		elif request.method == 'POST':
+		elif request.method == 'POST' and form.validate():
 			#print(f"POST request" , file=sys.stderr)
 			logging.debug('POST request')
 			rem_name = sqlescape(form.reminderName.data)
