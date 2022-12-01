@@ -19,6 +19,25 @@ class UserService:
     def __init__(self):
         print('init called', file=sys.stderr)
 
+    def display_user(username):
+        
+        logging.info('Display User function called.')
+        
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
+        logging.debug(f'Results: {result}')
+        if result == 0:
+            cur.close()
+            return json.dumps({'Success': 'False','errorcode': '002'})
+
+        if result>0:
+            data = cur.fetchall()
+            cur.close()
+            
+        return json.dumps({'Success': 'True', 'data':  data}, default=str)
+
+        
+
     def check_password_complexity(password):
         
         password_policy = PasswordPolicy.from_names(
@@ -224,10 +243,3 @@ class UserService:
             logging.error(f'{str(e)}')
             #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '004'})
-
-    
-
-
-
-
-
