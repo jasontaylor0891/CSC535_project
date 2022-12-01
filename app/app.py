@@ -504,6 +504,7 @@ class edit_Reminder(Form):
 
 #Route and function for edit reminder
 @app.route('/editReminder/<int:reminderId>', methods=["GET","POST"])
+@is_logged_in
 def editReminder(reminderId):
 	
 	try:
