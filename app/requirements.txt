@@ -9,3 +9,4 @@ wtforms-html5
 email_validator
 password-strength
 pytest
+sqlescapy
