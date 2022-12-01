@@ -328,6 +328,7 @@ def profile():
 
 #Route and function for the User Profile
 @app.route('/userProfile/', methods=["GET","POST"])
+@is_logged_in
 def userProfile():
 	
 	try:
@@ -382,7 +383,7 @@ def userProfile():
 				content = json.loads(response)
 				if content['Success'] == 'True':
 					flash(f'The user {username} had the profile updated', 'info')
-					return redirect(url_for('login'))
+					return redirect(url_for('profile'))
 				else:
 					errorcode = content['errorcode']
 					if errorcode == '004':
