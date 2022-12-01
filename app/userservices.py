@@ -52,7 +52,6 @@ class UserService:
         checkpolicy = password_policy.test(password)
 
         logging.debug(f'Passwd Strength: {stats.strength()}')
-        #print(stats.strength())
         for i in checkpolicy:
             if str(i) == "Length(12)":
                 complex = False
@@ -124,7 +123,6 @@ class UserService:
 
     def registration(fname, lname, username, email, password, mtype, phone):
         logging.info('Registration process has started')
-        #print(f'Registration process has started', file=sys.stderr)
 
         if not UserService.check_password_complexity(password):
             return json.dumps({'Success': 'False','errorcode': '008'})
@@ -147,7 +145,6 @@ class UserService:
                 "'" +email+"', '"+hash+"', '"+phone+"', "+str(profile)+", True, '"+accountcreated+"', False)"
                 )
 
-            #print(f'SQL Output {sql}', file=sys.stderr)
             logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
@@ -157,7 +154,6 @@ class UserService:
             "VALUES('Default', 'Default List', '" +username+ "')")
             
             logging.debug(f'SQL Output {sql}')
-            #print(f'SQL Output {sql}', file=sys.stderr)
             results = cur.execute(sql)
             mysql.connection.commit()
 
@@ -165,7 +161,6 @@ class UserService:
 
         except Exception as e:
             logging.error(f'{str(e)}')
-            #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '004'})
 
         
@@ -173,7 +168,6 @@ class UserService:
     def updatepassword(username, oldpassword, newpassword):
         
         logging.info(f'User {username} has started password change')
-        #print(f'User {username} has started password change', file=sys.stderr)
 
         if not UserService.check_password_complexity(newpassword):
             return json.dumps({'Updated': 'False','errorcode': '008'})
@@ -194,7 +188,7 @@ class UserService:
             return json.dumps({'Updated': 'False', 'errorcode': '003'})
     
     def updateUserInformation(fname, lname, new_username, email, mtype, phone, query_username):
-        #print(f'Update user information process has started', file=sys.stderr)
+
         logging.info('Update user information process has started')
         if mtype == "Free":
             profile = 3
@@ -210,7 +204,6 @@ class UserService:
                     " WHERE username = '" + query_username + "'")
 
 
-            #print(f'SQL Output {sql}', file=sys.stderr)
             logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
@@ -221,7 +214,6 @@ class UserService:
                     " WHERE username = '"+query_username + "'"
             )
             
-            #print(f'SQL Output {sql}', file=sys.stderr)
             logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
@@ -232,7 +224,6 @@ class UserService:
                     " WHERE username = '"+query_username + "'"
             )
             
-            #print(f'SQL Output {sql}', file=sys.stderr)
             logging.debug(f'SQL Output {sql}')
             results = cur.execute(sql)
             mysql.connection.commit()
@@ -241,5 +232,4 @@ class UserService:
 
         except Exception as e:
             logging.error(f'{str(e)}')
-            #print(f'{datetime.datetime.now()} Error: {str(e)}', file=sys.stderr)
             return json.dumps({'Success': 'False','errorcode': '004'})
