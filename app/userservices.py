@@ -73,7 +73,7 @@ class UserService:
 
     def login(username, password_candidate):
         
-        password = 'klsjflakfjierm12'
+        password = 'klsjflakfjierm12@swa'
         logging.info(f'User {username} login attempt started')
         login_attempt = 0
 
